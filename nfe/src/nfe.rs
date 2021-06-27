@@ -1,8 +1,9 @@
 //! NF-e - Representação da nota fiscal eletrônica
 
-use std::io::{BufRead, BufReader};
+use std::io::Read;
+use std::fs::File;
 use std::str::FromStr;
-use xml::{*, reader::XmlEvent};
+use std::convert::TryFrom;
 
 /// Nota Fiscal Eletrônica
 pub struct Nfe {
@@ -17,27 +18,31 @@ pub enum VersaoLayout {
     Outra
 }
 
-/// Parse da NF-e a partir da string
 impl FromStr for Nfe {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Nfe::parse(BufReader::new(s.as_bytes()))
+        Nfe::parse(s)
+    }
+}
+
+impl TryFrom<File> for Nfe {
+    type Error = String;
+
+    fn try_from(mut f: File) -> Result<Self, Self::Error> {
+
+        let mut xml = String::new();
+        f.read_to_string(&mut xml)
+            .map_err(|e| e.to_string())?;
+
+        Nfe::parse(&xml)
     }
 }
 
 impl Nfe {
 
-    /// Parse da NF-e a partir de um reader
-    pub fn parse<B>(buffer: B) -> Result<Self, String>
-    where
-        B: BufRead {
-        let mut parser = EventReader::new(buffer);
-
-        match parser.next() {
-            Ok(XmlEvent::StartDocument { .. }) => Ok(()),
-            _ => Err("Tag inicial do XML não encontrada".to_string())
-        }.map_err(|e| e.to_string())?;
+    /// Parse da NF-e a partir de uma string
+    pub fn parse(s: &str) -> Result<Self, String> {
 
         todo!()
     }

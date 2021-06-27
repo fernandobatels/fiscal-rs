@@ -1,9 +1,9 @@
 //! Testes da API de parse da NF-e
 
+use std::convert::TryFrom;
 use std::str::FromStr;
 use std::fs::File;
-use std::io::BufReader;
-use std::io::prelude::*;
+use std::io::Read;
 
 use crate::*;
 
@@ -25,14 +25,12 @@ fn from_str() -> Result<(), String> {
 }
 
 #[test]
-fn from_reader() -> Result<(), String> {
+fn from_read() -> Result<(), String> {
 
     let f = File::open("xmls/nfe_layout4.xml")
         .map_err(|e| e.to_string())?;
 
-    let mut bfr = BufReader::new(f);
-
-    Nfe::parse(bfr)?;
+    Nfe::try_from(f)?;
 
     Ok(())
 }
