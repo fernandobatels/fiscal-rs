@@ -5,7 +5,9 @@ use parsercher::dom::*;
 /// Identificação da NF-e
 pub struct Identificacao {
     pub codigo_uf: u8,
+    pub codigo_chave: u32,
     pub numero: u32,
+    pub serie: u16,
     pub natureza_operacao: String
 }
 
@@ -25,7 +27,7 @@ impl Identificacao {
             .parse::<u8>()
             .map_err(|e| e.to_string())?;
 
-        let numero = parsercher::search_text_from_tag_children(&ide, &Tag::new("cNF"))
+        let codigo_chave = parsercher::search_text_from_tag_children(&ide, &Tag::new("cNF"))
             .ok_or("Tag <cNF> não encontrada na <ide>")?[0]
             .parse::<u32>()
             .map_err(|e| e.to_string())?;
@@ -34,8 +36,20 @@ impl Identificacao {
             .ok_or("Tag <natOp> não encontrada na <ide>")?[0]
             .to_string();
 
+        let serie = parsercher::search_text_from_tag_children(&ide, &Tag::new("serie"))
+            .ok_or("Tag <serie> não encontrada na <ide>")?[0]
+            .parse::<u16>()
+            .map_err(|e| e.to_string())?;
+
+        let numero = parsercher::search_text_from_tag_children(&ide, &Tag::new("nNF"))
+            .ok_or("Tag <nNF> não encontrada na <ide>")?[0]
+            .parse::<u32>()
+            .map_err(|e| e.to_string())?;
+
         Ok(Identificacao {
             codigo_uf,
+            codigo_chave,
+            serie,
             numero,
             natureza_operacao
         })
