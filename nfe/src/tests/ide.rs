@@ -1,4 +1,4 @@
-//! Testes da tag <infNFe>
+//! Testes da tag <ide>
 
 use std::convert::TryFrom;
 use std::fs::File;
@@ -12,8 +12,9 @@ fn basico() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let nfe = Nfe::try_from(f)?;
 
-    assert_eq!("43180906929383000163550010000000261000010301", nfe.chave_acesso);
-    assert_eq!(VersaoLayout::V4_00, nfe.versao);
+    assert_eq!(43, nfe.ide.codigo_uf);
+    assert_eq!(1030, nfe.ide.numero);
+    assert_eq!("Venda de producao do estabelecimento", nfe.ide.natureza_operacao);
 
     Ok(())
 }

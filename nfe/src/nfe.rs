@@ -5,11 +5,13 @@ use std::fs::File;
 use std::str::FromStr;
 use std::convert::TryFrom;
 use parsercher::{self, dom::*};
+use super::ide::*;
 
 /// Nota Fiscal Eletrônica
 pub struct Nfe {
     pub versao: VersaoLayout,
-    pub chave_acesso: String
+    pub chave_acesso: String,
+    pub ide: Identificacao
 }
 
 /// Versão do layout da NF-e
@@ -51,10 +53,8 @@ impl Nfe {
         // Saltamos direto para a tag <infNfe> já
         // que se não houver essa tag, de nada nos
         // adiantará a <NFe> ou <?xml>
-        let tags_infnfe = parsercher::search_tag(&xml, &Tag::new("infNFe"))
-            .ok_or("Tag <infNFe> não encontrada")?;
-        let infnfe = tags_infnfe.first()
-            .ok_or("Erro ao acessar a <infNFe>")?;
+        let infnfe = &parsercher::search_tag(&xml, &Tag::new("infNFe"))
+            .ok_or("Tag <infNFe> não encontrada")?[0];
 
         let chave_acesso = infnfe.get_attr("Id")
             .ok_or("Atributo 'Id' não encontrado na tag <infNFe>")?
@@ -64,9 +64,12 @@ impl Nfe {
             .ok_or("Atributo 'versao' não encontrado na tag <infNFe>")?
             .parse::<VersaoLayout>()?;
 
+        let ide = Identificacao::parse(xml)?;
+
         Ok(Self {
             chave_acesso,
-            versao
+            versao,
+            ide
         })
     }
 }
