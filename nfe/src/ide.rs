@@ -1,5 +1,6 @@
 //! Identificação da NF-e
 
+use std::str::FromStr;
 use parsercher::dom::*;
 
 /// Identificação da NF-e
@@ -8,7 +9,16 @@ pub struct Identificacao {
     pub codigo_chave: u32,
     pub numero: u32,
     pub serie: u16,
-    pub natureza_operacao: String
+    pub natureza_operacao: String,
+    pub modelo: ModeloDocumentoFiscal
+}
+
+/// Modelo do documento fiscal: NF-e ou NFC-e
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum ModeloDocumentoFiscal {
+    Nfe = 55,
+    Nfce = 65,
+    Desconhecido = -1
 }
 
 impl Identificacao {
@@ -46,12 +56,29 @@ impl Identificacao {
             .parse::<u32>()
             .map_err(|e| e.to_string())?;
 
+        let modelo = parsercher::search_text_from_tag_children(&ide, &Tag::new("mod"))
+            .ok_or("Tag <mod> não encontrada na <ide>")?[0]
+            .parse::<ModeloDocumentoFiscal>()?;
+
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
             serie,
             numero,
-            natureza_operacao
+            natureza_operacao,
+            modelo
+        })
+    }
+}
+
+impl FromStr for ModeloDocumentoFiscal {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "55" => ModeloDocumentoFiscal::Nfe,
+            "65" => ModeloDocumentoFiscal::Nfce,
+            _ => ModeloDocumentoFiscal::Desconhecido
         })
     }
 }

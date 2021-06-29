@@ -17,6 +17,7 @@ fn basico() -> Result<(), String> {
     assert_eq!("Venda de producao do estabelecimento", nfe.ide.natureza_operacao);
     assert_eq!(1, nfe.ide.serie);
     assert_eq!(26, nfe.ide.numero);
+    assert_eq!(ModeloDocumentoFiscal::Nfe, nfe.ide.modelo);
 
     Ok(())
 }
