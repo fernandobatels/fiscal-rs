@@ -10,14 +10,9 @@ pub struct Identificacao {
     pub codigo_chave: u32,
     pub numero: u32,
     pub serie: u16,
-    pub natureza_operacao: String,
     pub modelo: ModeloDocumentoFiscal,
-    pub emissao: DateTime<Utc>,
-    /// Horário de saída ou da entrada do produto
-    pub operacao: Option<DateTime<Utc>>,
-    pub tipo_operacao: TipoOperacao,
-    pub destino_operacao: DestinoOperacao,
-    pub tipo_emissao: TipoEmissao
+    pub emissao: Emissao,
+    pub operacao: Operacao,
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
@@ -63,6 +58,20 @@ pub enum TipoEmissao {
     ContigenciaOfflineNfce = 9
 }
 
+/// Dados referentes a emissão da nota
+pub struct Emissao {
+    pub horario: DateTime<Utc>,
+    pub tipo: TipoEmissao
+}
+
+/// Dados referentes a operação da nota
+pub struct Operacao {
+    pub horario: Option<DateTime<Utc>>,
+    pub tipo: TipoOperacao,
+    pub destino: DestinoOperacao,
+    pub natureza: String,
+}
+
 impl Identificacao {
 
     /// Parse da seção <ide>
@@ -84,10 +93,6 @@ impl Identificacao {
             .parse::<u32>()
             .map_err(|e| e.to_string())?;
 
-        let natureza_operacao = parsercher::search_text_from_tag_children(&ide, &Tag::new("natOp"))
-            .ok_or("Tag <natOp> não encontrada na <ide>")?[0]
-            .to_string();
-
         let serie = parsercher::search_text_from_tag_children(&ide, &Tag::new("serie"))
             .ok_or("Tag <serie> não encontrada na <ide>")?[0]
             .parse::<u16>()
@@ -102,44 +107,61 @@ impl Identificacao {
             .ok_or("Tag <mod> não encontrada na <ide>")?[0]
             .parse::<ModeloDocumentoFiscal>()?;
 
-        let emissao = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhEmi"))
-            .ok_or("Tag <dhEmi> não encontrada na <ide>")?[0]
-            .parse::<DateTime<Utc>>()
-            .map_err(|e| e.to_string())?;
+        let emissao = {
 
-        let operacao = {
-            if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhSaiEnt")) {
-                Some(dt[0].parse::<DateTime<Utc>>()
-                    .map_err(|e| e.to_string())?)
-            } else {
-                None
+            let horario = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhEmi"))
+                .ok_or("Tag <dhEmi> não encontrada na <ide>")?[0]
+                .parse::<DateTime<Utc>>()
+                .map_err(|e| e.to_string())?;
+
+            let tipo = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpEmis"))
+                .ok_or("Tag <tpEmis> não encontrada na <ide>")?[0]
+                .parse::<TipoEmissao>()?;
+
+            Emissao {
+                horario,
+                tipo
             }
         };
 
-        let tipo_operacao = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpNF"))
-            .ok_or("Tag <tpNF> não encontrada na <ide>")?[0]
-            .parse::<TipoOperacao>()?;
+        let operacao = {
+            let natureza = parsercher::search_text_from_tag_children(&ide, &Tag::new("natOp"))
+                .ok_or("Tag <natOp> não encontrada na <ide>")?[0]
+                .to_string();
 
-        let destino_operacao = parsercher::search_text_from_tag_children(&ide, &Tag::new("idDest"))
-            .ok_or("Tag <idDest> não encontrada na <ide>")?[0]
-            .parse::<DestinoOperacao>()?;
+            let tipo = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpNF"))
+                .ok_or("Tag <tpNF> não encontrada na <ide>")?[0]
+                .parse::<TipoOperacao>()?;
 
-        let tipo_emissao = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpEmis"))
-            .ok_or("Tag <tpEmis> não encontrada na <ide>")?[0]
-            .parse::<TipoEmissao>()?;
+            let destino = parsercher::search_text_from_tag_children(&ide, &Tag::new("idDest"))
+                .ok_or("Tag <idDest> não encontrada na <ide>")?[0]
+                .parse::<DestinoOperacao>()?;
+
+            let horario = {
+                if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhSaiEnt")) {
+                    Some(dt[0].parse::<DateTime<Utc>>()
+                         .map_err(|e| e.to_string())?)
+                } else {
+                    None
+                }
+            };
+
+            Operacao {
+                natureza,
+                tipo,
+                destino,
+                horario
+            }
+        };
 
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
             serie,
             numero,
-            natureza_operacao,
             modelo,
             emissao,
-            operacao,
-            tipo_operacao,
-            destino_operacao,
-            tipo_emissao
+            operacao
         })
     }
 }

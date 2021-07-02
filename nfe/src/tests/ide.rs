@@ -15,15 +15,15 @@ fn basico() -> Result<(), String> {
 
     assert_eq!(43, nfe.ide.codigo_uf);
     assert_eq!(1030, nfe.ide.codigo_chave);
-    assert_eq!("Venda de producao do estabelecimento", nfe.ide.natureza_operacao);
+    assert_eq!("Venda de producao do estabelecimento", nfe.ide.operacao.natureza);
     assert_eq!(1, nfe.ide.serie);
     assert_eq!(26, nfe.ide.numero);
     assert_eq!(ModeloDocumentoFiscal::Nfe, nfe.ide.modelo);
-    assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), nfe.ide.emissao);
-    assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), nfe.ide.operacao);
-    assert_eq!(TipoOperacao::Saida, nfe.ide.tipo_operacao);
-    assert_eq!(DestinoOperacao::OperacaoInterestadual, nfe.ide.destino_operacao);
-    assert_eq!(TipoEmissao::EmissaoNormal, nfe.ide.tipo_emissao);
+    assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), nfe.ide.emissao.horario);
+    assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), nfe.ide.operacao.horario);
+    assert_eq!(TipoOperacao::Saida, nfe.ide.operacao.tipo);
+    assert_eq!(DestinoOperacao::OperacaoInterestadual, nfe.ide.operacao.destino);
+    assert_eq!(TipoEmissao::EmissaoNormal, nfe.ide.emissao.tipo);
 
     Ok(())
 }
