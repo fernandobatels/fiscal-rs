@@ -15,14 +15,30 @@ pub struct Identificacao {
     pub emissao: DateTime<Utc>,
     /// Horário de saída ou da entrada do produto
     pub operacao: Option<DateTime<Utc>>,
+    pub tipo_operacao: TipoOperacao,
+    pub destino_operacao: DestinoOperacao
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum ModeloDocumentoFiscal {
     Nfe = 55,
-    Nfce = 65,
-    Desconhecido = -1
+    Nfce = 65
+}
+
+/// Tipo de operação da nota
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoOperacao {
+    Entrada = 0,
+    Saida = 1
+}
+
+/// Destino da operação da nota
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum DestinoOperacao {
+    OperacaoInterna = 0,
+    OperacaoInterestadual = 1,
+    OperacaoComExterior = 2
 }
 
 impl Identificacao {
@@ -78,6 +94,14 @@ impl Identificacao {
             }
         };
 
+        let tipo_operacao = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpNF"))
+            .ok_or("Tag <tpNF> não encontrada na <ide>")?[0]
+            .parse::<TipoOperacao>()?;
+
+        let destino_operacao = parsercher::search_text_from_tag_children(&ide, &Tag::new("idDest"))
+            .ok_or("Tag <idDest> não encontrada na <ide>")?[0]
+            .parse::<DestinoOperacao>()?;
+
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
@@ -86,7 +110,9 @@ impl Identificacao {
             natureza_operacao,
             modelo,
             emissao,
-            operacao
+            operacao,
+            tipo_operacao,
+            destino_operacao
         })
     }
 }
@@ -96,9 +122,31 @@ impl FromStr for ModeloDocumentoFiscal {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "55" => ModeloDocumentoFiscal::Nfe,
             "65" => ModeloDocumentoFiscal::Nfce,
-            _ => ModeloDocumentoFiscal::Desconhecido
+            _ => ModeloDocumentoFiscal::Nfe // 55
+        })
+    }
+}
+
+impl FromStr for TipoOperacao {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "1" => TipoOperacao::Saida,
+            _ => TipoOperacao::Entrada
+        })
+    }
+}
+
+impl FromStr for DestinoOperacao {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "3" => DestinoOperacao::OperacaoComExterior,
+            "2" => DestinoOperacao::OperacaoInterestadual,
+            _ => DestinoOperacao::OperacaoInterna // 1
         })
     }
 }
