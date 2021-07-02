@@ -16,7 +16,8 @@ pub struct Identificacao {
     /// Horário de saída ou da entrada do produto
     pub operacao: Option<DateTime<Utc>>,
     pub tipo_operacao: TipoOperacao,
-    pub destino_operacao: DestinoOperacao
+    pub destino_operacao: DestinoOperacao,
+    pub tipo_emissao: TipoEmissao
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
@@ -39,6 +40,27 @@ pub enum DestinoOperacao {
     OperacaoInterna = 0,
     OperacaoInterestadual = 1,
     OperacaoComExterior = 2
+}
+
+/// Tipo da emissão da nota
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoEmissao {
+    /// Emissão normal (não em contingência)
+    EmissaoNormal = 1,
+    /// Contingência FS-IA, com impressão do DANFE em Formulário de Segurança - Impressor Autônomo
+    ContigenciaFsIa = 2,
+    /// Contingência SCAN (Sistema de Contingência do Ambiente Nacional)
+    ContingenciaScan = 3,
+    /// Contingência EPEC (Evento Prévio da Emissão em Contingência)
+    ContigenciaEpec = 4,
+    /// Contingência FS-DA, com impressão do DANFE em Formulário de Segurança - Documento Auxiliar
+    ContigenciaFsDa = 5,
+    /// Contingência SVC-AN (SEFAZ Virtual de Contingência do AN)
+    ContigenciaSvcAn = 6,
+    /// Contingência SVC-RS (SEFAZ Virtual de Contingência do RS)
+    ContigenciaSvcRs = 7,
+    /// Contingência off-line da NFC-e
+    ContigenciaOfflineNfce = 9
 }
 
 impl Identificacao {
@@ -102,6 +124,10 @@ impl Identificacao {
             .ok_or("Tag <idDest> não encontrada na <ide>")?[0]
             .parse::<DestinoOperacao>()?;
 
+        let tipo_emissao = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpEmis"))
+            .ok_or("Tag <tpEmis> não encontrada na <ide>")?[0]
+            .parse::<TipoEmissao>()?;
+
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
@@ -112,7 +138,8 @@ impl Identificacao {
             emissao,
             operacao,
             tipo_operacao,
-            destino_operacao
+            destino_operacao,
+            tipo_emissao
         })
     }
 }
@@ -147,6 +174,23 @@ impl FromStr for DestinoOperacao {
             "3" => DestinoOperacao::OperacaoComExterior,
             "2" => DestinoOperacao::OperacaoInterestadual,
             _ => DestinoOperacao::OperacaoInterna // 1
+        })
+    }
+}
+
+impl FromStr for TipoEmissao {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "2" => TipoEmissao::ContigenciaFsIa,
+            "3" => TipoEmissao::ContingenciaScan,
+            "4" => TipoEmissao::ContigenciaEpec,
+            "5" => TipoEmissao::ContigenciaFsDa,
+            "6" => TipoEmissao::ContigenciaSvcAn,
+            "7" => TipoEmissao::ContigenciaSvcRs,
+            "9" => TipoEmissao::ContigenciaOfflineNfce,
+            _ => TipoEmissao::EmissaoNormal // 1
         })
     }
 }

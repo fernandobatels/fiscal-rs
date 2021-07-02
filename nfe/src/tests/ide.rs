@@ -23,6 +23,7 @@ fn basico() -> Result<(), String> {
     assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), nfe.ide.operacao);
     assert_eq!(TipoOperacao::Saida, nfe.ide.tipo_operacao);
     assert_eq!(DestinoOperacao::OperacaoInterestadual, nfe.ide.destino_operacao);
+    assert_eq!(TipoEmissao::EmissaoNormal, nfe.ide.tipo_emissao);
 
     Ok(())
 }
