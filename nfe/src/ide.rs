@@ -2,6 +2,7 @@
 
 use std::str::FromStr;
 use parsercher::dom::*;
+use chrono::prelude::*;
 
 /// Identificação da NF-e
 pub struct Identificacao {
@@ -10,7 +11,10 @@ pub struct Identificacao {
     pub numero: u32,
     pub serie: u16,
     pub natureza_operacao: String,
-    pub modelo: ModeloDocumentoFiscal
+    pub modelo: ModeloDocumentoFiscal,
+    pub emissao: DateTime<Utc>,
+    /// Horário de saída ou da entrada do produto
+    pub operacao: Option<DateTime<Utc>>,
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
@@ -60,13 +64,29 @@ impl Identificacao {
             .ok_or("Tag <mod> não encontrada na <ide>")?[0]
             .parse::<ModeloDocumentoFiscal>()?;
 
+        let emissao = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhEmi"))
+            .ok_or("Tag <dhEmi> não encontrada na <ide>")?[0]
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| e.to_string())?;
+
+        let operacao = {
+            if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhSaiEnt")) {
+                Some(dt[0].parse::<DateTime<Utc>>()
+                    .map_err(|e| e.to_string())?)
+            } else {
+                None
+            }
+        };
+
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
             serie,
             numero,
             natureza_operacao,
-            modelo
+            modelo,
+            emissao,
+            operacao
         })
     }
 }
