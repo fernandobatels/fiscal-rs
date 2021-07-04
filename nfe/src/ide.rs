@@ -95,6 +95,25 @@ pub enum TipoConsumidor {
     Final = 1,
 }
 
+/// Tipo da presença do comprador
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoPresencaComprador {
+    /// Não se aplica. Ex.: Nota complementar ou de ajuste
+    NaoSeAplica = 0,
+    /// Operação presencial
+    Presencial = 1,
+    /// Operação não presencial, via internet
+    ViaInternel = 2,
+    /// Operação não presencial, via teleatendimento
+    ViaTeleatendimento = 3,
+    /// NFC-e em operação com entrega a domicílio
+    NfceEmDomicilio = 4,
+    /// Operação presencial, fora do estabelecimento
+    PresencialForaDoEstabelecimento = 5,
+    /// Operação não presencial
+    Outros = 9
+}
+
 /// Dados referentes a emissão da nota
 pub struct Emissao {
     pub horario: DateTime<Utc>,
@@ -108,7 +127,8 @@ pub struct Operacao {
     pub tipo: TipoOperacao,
     pub destino: DestinoOperacao,
     pub natureza: String,
-    pub consumidor: TipoConsumidor
+    pub consumidor: TipoConsumidor,
+    pub presenca: TipoPresencaComprador,
 }
 
 impl Identificacao {
@@ -194,12 +214,17 @@ impl Identificacao {
                 .ok_or("Tag <indFinal> não encontrada na <ide>")?[0]
                 .parse::<TipoConsumidor>()?;
 
+            let presenca = parsercher::search_text_from_tag_children(&ide, &Tag::new("indPres"))
+                .ok_or("Tag <indPres> não encontrada na <ide>")?[0]
+                .parse::<TipoPresencaComprador>()?;
+
             Operacao {
                 natureza,
                 tipo,
                 destino,
                 horario,
-                consumidor
+                consumidor,
+                presenca,
             }
         };
 
@@ -328,6 +353,22 @@ impl FromStr for TipoConsumidor {
         Ok(match s {
             "2" => TipoConsumidor::Final,
             _ => TipoConsumidor::Normal // 1
+        })
+    }
+}
+
+impl FromStr for TipoPresencaComprador {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "9" => TipoPresencaComprador::Outros,
+            "5" => TipoPresencaComprador::PresencialForaDoEstabelecimento,
+            "4" => TipoPresencaComprador::NfceEmDomicilio,
+            "3" => TipoPresencaComprador::ViaTeleatendimento,
+            "2" => TipoPresencaComprador::ViaInternel,
+            "1" => TipoPresencaComprador::Presencial,
+            _ => TipoPresencaComprador::NaoSeAplica // 0
         })
     }
 }

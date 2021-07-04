@@ -29,6 +29,7 @@ fn basico() -> Result<(), String> {
     assert_eq!(TipoAmbiente::Homologacao, nfe.ide.ambiente);
     assert_eq!(FinalidadeEmissao::Normal, nfe.ide.emissao.finalidade);
     assert_eq!(TipoConsumidor::Normal, nfe.ide.operacao.consumidor);
+    assert_eq!(TipoPresencaComprador::Presencial, nfe.ide.operacao.presenca);
 
     Ok(())
 }
