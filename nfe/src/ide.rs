@@ -7,7 +7,7 @@ use chrono::prelude::*;
 /// Identificação da NF-e
 pub struct Identificacao {
     pub codigo_uf: u8,
-    pub codigo_chave: u32,
+    pub chave: ComposicaoChaveAcesso,
     pub numero: u32,
     pub serie: u16,
     pub modelo: ModeloDocumentoFiscal,
@@ -156,6 +156,12 @@ pub struct Operacao {
     pub intermediador: Option<TipoIntermediador>
 }
 
+/// Dados referentes a regeração da chave de acesso
+pub struct ComposicaoChaveAcesso {
+    pub codigo: u32,
+    pub digito_verificador: u8
+}
+
 impl Identificacao {
 
     /// Parse da seção <ide>
@@ -172,10 +178,22 @@ impl Identificacao {
             .parse::<u8>()
             .map_err(|e| e.to_string())?;
 
-        let codigo_chave = parsercher::search_text_from_tag_children(&ide, &Tag::new("cNF"))
-            .ok_or("Tag <cNF> não encontrada na <ide>")?[0]
-            .parse::<u32>()
-            .map_err(|e| e.to_string())?;
+        let chave = {
+            let codigo = parsercher::search_text_from_tag_children(&ide, &Tag::new("cNF"))
+                .ok_or("Tag <cNF> não encontrada na <ide>")?[0]
+                .parse::<u32>()
+                .map_err(|e| e.to_string())?;
+
+            let digito_verificador = parsercher::search_text_from_tag_children(&ide, &Tag::new("cDV"))
+                .ok_or("Tag <cDV> não encontrada na <ide>")?[0]
+                .parse::<u8>()
+                .map_err(|e| e.to_string())?;
+
+            ComposicaoChaveAcesso {
+                codigo,
+                digito_verificador
+            }
+        };
 
         let serie = parsercher::search_text_from_tag_children(&ide, &Tag::new("serie"))
             .ok_or("Tag <serie> não encontrada na <ide>")?[0]
@@ -286,7 +304,7 @@ impl Identificacao {
 
         Ok(Identificacao {
             codigo_uf,
-            codigo_chave,
+            chave,
             serie,
             numero,
             modelo,

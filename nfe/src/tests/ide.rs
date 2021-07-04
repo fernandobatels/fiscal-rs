@@ -15,12 +15,24 @@ fn base() -> Result<(), String> {
 
     assert_eq!(43, ide.codigo_uf);
     assert_eq!(4307609, ide.codigo_municipio);
-    assert_eq!(1030, ide.codigo_chave);
     assert_eq!(1, ide.serie);
     assert_eq!(26, ide.numero);
     assert_eq!(ModeloDocumentoFiscal::Nfe, ide.modelo);
     assert_eq!(FormatoImpressaoDanfe::NormalRetrato, ide.formato_danfe);
     assert_eq!(TipoAmbiente::Homologacao, ide.ambiente);
+
+    Ok(())
+}
+
+#[test]
+fn chave_acesso() -> Result<(), String> {
+
+    let f = File::open("xmls/nfe_layout4.xml")
+        .map_err(|e| e.to_string())?;
+    let chave = Nfe::try_from(f)?.ide.chave;
+
+    assert_eq!(1030, chave.codigo);
+    assert_eq!(1, chave.digito_verificador);
 
     Ok(())
 }
