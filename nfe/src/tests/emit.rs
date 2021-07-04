@@ -15,6 +15,8 @@ fn base() -> Result<(), String> {
     assert_eq!("06929383000163", emit.cnpj);
     assert_eq!("UMA RAZAO SOCIAL DE TESTE QUALQUER", emit.razao_social);
     assert_eq!(None, emit.nome_fantasia);
+    assert_eq!("0018000762", emit.ie);
+    assert_eq!(None, emit.iest);
 
     Ok(())
 }

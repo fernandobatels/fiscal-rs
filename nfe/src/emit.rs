@@ -6,7 +6,9 @@ use parsercher::dom::*;
 pub struct Emitente {
     pub cnpj: String,
     pub razao_social: String,
-    pub nome_fantasia: Option<String>
+    pub nome_fantasia: Option<String>,
+    pub ie: String,
+    pub iest: Option<u32>,
 }
 
 impl Emitente {
@@ -21,11 +23,11 @@ impl Emitente {
             .ok_or("Tag <emit> não encontrada")?;
 
         let cnpj = parsercher::search_text_from_tag_children(&emit, &Tag::new("CNPJ"))
-            .ok_or("Tag <CNPJ> não encontrada na <ide>")?[0]
+            .ok_or("Tag <CNPJ> não encontrada na <emit>")?[0]
             .to_string();
 
         let razao_social = parsercher::search_text_from_tag_children(&emit, &Tag::new("xNome"))
-            .ok_or("Tag <xNome> não encontrada na <ide>")?[0]
+            .ok_or("Tag <xNome> não encontrada na <emit>")?[0]
             .to_string();
 
         let nome_fantasia = {
@@ -36,10 +38,25 @@ impl Emitente {
             }
         };
 
+        let ie = parsercher::search_text_from_tag_children(&emit, &Tag::new("IE"))
+            .ok_or("Tag <IE> não encontrada na <emit>")?[0]
+            .to_string();
+
+        let iest = {
+            if let Some(iest) = parsercher::search_text_from_tag_children(&emit, &Tag::new("IEST")) {
+                Some(iest[0].parse::<u32>()
+                     .map_err(|e| e.to_string())?)
+            } else {
+                None
+            }
+        };
+
         Ok(Emitente {
             cnpj,
             razao_social,
-            nome_fantasia
+            nome_fantasia,
+            ie,
+            iest
         })
     }
 }
