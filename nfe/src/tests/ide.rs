@@ -7,32 +7,55 @@ use chrono::prelude::*;
 use crate::*;
 
 #[test]
-fn basico() -> Result<(), String> {
+fn base() -> Result<(), String> {
 
     let f = File::open("xmls/nfe_layout4.xml")
         .map_err(|e| e.to_string())?;
-    let nfe = Nfe::try_from(f)?;
+    let ide = Nfe::try_from(f)?.ide;
 
-    assert_eq!(43, nfe.ide.codigo_uf);
-    assert_eq!(4307609, nfe.ide.codigo_municipio);
-    assert_eq!(1030, nfe.ide.codigo_chave);
-    assert_eq!("Venda de producao do estabelecimento", nfe.ide.operacao.natureza);
-    assert_eq!(1, nfe.ide.serie);
-    assert_eq!(26, nfe.ide.numero);
-    assert_eq!(ModeloDocumentoFiscal::Nfe, nfe.ide.modelo);
-    assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), nfe.ide.emissao.horario);
-    assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), nfe.ide.operacao.horario);
-    assert_eq!(TipoOperacao::Saida, nfe.ide.operacao.tipo);
-    assert_eq!(DestinoOperacao::Interestadual, nfe.ide.operacao.destino);
-    assert_eq!(TipoEmissao::Normal, nfe.ide.emissao.tipo);
-    assert_eq!(FormatoImpressaoDanfe::NormalRetrato, nfe.ide.formato_danfe);
-    assert_eq!(TipoAmbiente::Homologacao, nfe.ide.ambiente);
-    assert_eq!(FinalidadeEmissao::Normal, nfe.ide.emissao.finalidade);
-    assert_eq!(TipoConsumidor::Normal, nfe.ide.operacao.consumidor);
-    assert_eq!(TipoPresencaComprador::Presencial, nfe.ide.operacao.presenca);
-    assert_eq!(None, nfe.ide.operacao.intermediador);
-    assert_eq!(TipoProcessoEmissao::ViaAplicativoDoContribuinte, nfe.ide.emissao.processo);
-    assert_eq!("fernando", nfe.ide.emissao.versao_processo);
+    assert_eq!(43, ide.codigo_uf);
+    assert_eq!(4307609, ide.codigo_municipio);
+    assert_eq!(1030, ide.codigo_chave);
+    assert_eq!(1, ide.serie);
+    assert_eq!(26, ide.numero);
+    assert_eq!(ModeloDocumentoFiscal::Nfe, ide.modelo);
+    assert_eq!(FormatoImpressaoDanfe::NormalRetrato, ide.formato_danfe);
+    assert_eq!(TipoAmbiente::Homologacao, ide.ambiente);
+
+    Ok(())
+}
+
+#[test]
+fn emissao() -> Result<(), String> {
+
+    let f = File::open("xmls/nfe_layout4.xml")
+        .map_err(|e| e.to_string())?;
+    let emissao = Nfe::try_from(f)?.ide.emissao;
+
+    assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), emissao.horario);
+    assert_eq!(TipoEmissao::Normal, emissao.tipo);
+    assert_eq!(FinalidadeEmissao::Normal, emissao.finalidade);
+    assert_eq!(TipoProcessoEmissao::ViaAplicativoDoContribuinte, emissao.processo);
+    assert_eq!("fernando", emissao.versao_processo);
+
+    Ok(())
+}
+
+
+#[test]
+fn operacao() -> Result<(), String> {
+
+    let f = File::open("xmls/nfe_layout4.xml")
+        .map_err(|e| e.to_string())?;
+    let operacao = Nfe::try_from(f)?.ide.operacao;
+
+    assert_eq!("Venda de producao do estabelecimento", operacao.natureza);
+    assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), operacao.horario);
+    assert_eq!(TipoOperacao::Saida, operacao.tipo);
+    assert_eq!(DestinoOperacao::Interestadual, operacao.destino);
+    assert_eq!(TipoConsumidor::Normal, operacao.consumidor);
+    assert_eq!(TipoPresencaComprador::Presencial, operacao.presenca);
+    assert_eq!(None, operacao.intermediador);
 
     Ok(())
 }

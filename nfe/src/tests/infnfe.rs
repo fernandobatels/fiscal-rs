@@ -6,7 +6,7 @@ use std::fs::File;
 use crate::*;
 
 #[test]
-fn basico() -> Result<(), String> {
+fn base() -> Result<(), String> {
 
     let f = File::open("xmls/nfe_layout4.xml")
         .map_err(|e| e.to_string())?;
