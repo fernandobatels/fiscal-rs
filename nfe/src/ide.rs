@@ -79,10 +79,27 @@ pub enum TipoAmbiente {
     Homologacao = 2,
 }
 
+/// Finalidade da emissão da nota
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum FinalidadeEmissao {
+    Normal = 1,
+    Complementar = 2,
+    Ajuste = 3,
+    Devolucao = 4
+}
+
+/// Tipo do consumidor da NF-e
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoConsumidor {
+    Normal = 0,
+    Final = 1,
+}
+
 /// Dados referentes a emissão da nota
 pub struct Emissao {
     pub horario: DateTime<Utc>,
-    pub tipo: TipoEmissao
+    pub tipo: TipoEmissao,
+    pub finalidade: FinalidadeEmissao
 }
 
 /// Dados referentes a operação da nota
@@ -91,6 +108,7 @@ pub struct Operacao {
     pub tipo: TipoOperacao,
     pub destino: DestinoOperacao,
     pub natureza: String,
+    pub consumidor: TipoConsumidor
 }
 
 impl Identificacao {
@@ -139,9 +157,14 @@ impl Identificacao {
                 .ok_or("Tag <tpEmis> não encontrada na <ide>")?[0]
                 .parse::<TipoEmissao>()?;
 
+            let finalidade = parsercher::search_text_from_tag_children(&ide, &Tag::new("finNFe"))
+                .ok_or("Tag <finNfe> não encontrada na <ide>")?[0]
+                .parse::<FinalidadeEmissao>()?;
+
             Emissao {
                 horario,
-                tipo
+                tipo,
+                finalidade
             }
         };
 
@@ -167,11 +190,16 @@ impl Identificacao {
                 }
             };
 
+            let consumidor = parsercher::search_text_from_tag_children(&ide, &Tag::new("indFinal"))
+                .ok_or("Tag <indFinal> não encontrada na <ide>")?[0]
+                .parse::<TipoConsumidor>()?;
+
             Operacao {
                 natureza,
                 tipo,
                 destino,
-                horario
+                horario,
+                consumidor
             }
         };
 
@@ -276,6 +304,30 @@ impl FromStr for TipoAmbiente {
         Ok(match s {
             "1" => TipoAmbiente::Producao,
             _ => TipoAmbiente::Homologacao // 2
+        })
+    }
+}
+
+impl FromStr for FinalidadeEmissao {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "4" => FinalidadeEmissao::Devolucao,
+            "3" => FinalidadeEmissao::Ajuste,
+            "2" => FinalidadeEmissao::Complementar,
+            _ => FinalidadeEmissao::Normal // 1
+        })
+    }
+}
+
+impl FromStr for TipoConsumidor {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "2" => TipoConsumidor::Final,
+            _ => TipoConsumidor::Normal // 1
         })
     }
 }
