@@ -23,8 +23,8 @@ fn basico() -> Result<(), String> {
     assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), nfe.ide.emissao.horario);
     assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), nfe.ide.operacao.horario);
     assert_eq!(TipoOperacao::Saida, nfe.ide.operacao.tipo);
-    assert_eq!(DestinoOperacao::OperacaoInterestadual, nfe.ide.operacao.destino);
-    assert_eq!(TipoEmissao::EmissaoNormal, nfe.ide.emissao.tipo);
+    assert_eq!(DestinoOperacao::Interestadual, nfe.ide.operacao.destino);
+    assert_eq!(TipoEmissao::Normal, nfe.ide.emissao.tipo);
     assert_eq!(FormatoImpressaoDanfe::NormalRetrato, nfe.ide.formato_danfe);
     assert_eq!(TipoAmbiente::Homologacao, nfe.ide.ambiente);
 

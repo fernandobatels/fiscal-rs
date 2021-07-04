@@ -35,16 +35,16 @@ pub enum TipoOperacao {
 /// Destino da operação da nota
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum DestinoOperacao {
-    OperacaoInterna = 0,
-    OperacaoInterestadual = 1,
-    OperacaoComExterior = 2
+    Interna = 0,
+    Interestadual = 1,
+    ComExterior = 2
 }
 
 /// Tipo da emissão da nota
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum TipoEmissao {
     /// Emissão normal (não em contingência)
-    EmissaoNormal = 1,
+    Normal = 1,
     /// Contingência FS-IA, com impressão do DANFE em Formulário de Segurança - Impressor Autônomo
     ContigenciaFsIa = 2,
     /// Contingência SCAN (Sistema de Contingência do Ambiente Nacional)
@@ -230,9 +230,9 @@ impl FromStr for DestinoOperacao {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "3" => DestinoOperacao::OperacaoComExterior,
-            "2" => DestinoOperacao::OperacaoInterestadual,
-            _ => DestinoOperacao::OperacaoInterna // 1
+            "3" => DestinoOperacao::ComExterior,
+            "2" => DestinoOperacao::Interestadual,
+            _ => DestinoOperacao::Interna // 1
         })
     }
 }
@@ -249,7 +249,7 @@ impl FromStr for TipoEmissao {
             "6" => TipoEmissao::ContigenciaSvcAn,
             "7" => TipoEmissao::ContigenciaSvcRs,
             "9" => TipoEmissao::ContigenciaOfflineNfce,
-            _ => TipoEmissao::EmissaoNormal // 1
+            _ => TipoEmissao::Normal // 1
         })
     }
 }
