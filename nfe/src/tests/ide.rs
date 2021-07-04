@@ -14,6 +14,7 @@ fn basico() -> Result<(), String> {
     let nfe = Nfe::try_from(f)?;
 
     assert_eq!(43, nfe.ide.codigo_uf);
+    assert_eq!(4307609, nfe.ide.codigo_municipio);
     assert_eq!(1030, nfe.ide.codigo_chave);
     assert_eq!("Venda de producao do estabelecimento", nfe.ide.operacao.natureza);
     assert_eq!(1, nfe.ide.serie);

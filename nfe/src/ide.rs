@@ -13,6 +13,7 @@ pub struct Identificacao {
     pub modelo: ModeloDocumentoFiscal,
     pub emissao: Emissao,
     pub operacao: Operacao,
+    pub codigo_municipio: u32
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
@@ -154,6 +155,11 @@ impl Identificacao {
             }
         };
 
+        let codigo_municipio = parsercher::search_text_from_tag_children(&ide, &Tag::new("cMunFG"))
+            .ok_or("Tag <cMunFG> não encontrada na <ide>")?[0]
+            .parse::<u32>()
+            .map_err(|e| e.to_string())?;
+
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
@@ -161,7 +167,8 @@ impl Identificacao {
             numero,
             modelo,
             emissao,
-            operacao
+            operacao,
+            codigo_municipio
         })
     }
 }
