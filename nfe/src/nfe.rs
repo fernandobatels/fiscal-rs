@@ -6,12 +6,14 @@ use std::str::FromStr;
 use std::convert::TryFrom;
 use parsercher::{self, dom::*};
 use super::ide::*;
+use super::emit::*;
 
 /// Nota Fiscal Eletrônica
 pub struct Nfe {
     pub versao: VersaoLayout,
     pub chave_acesso: String,
-    pub ide: Identificacao
+    pub ide: Identificacao,
+    pub emit: Emitente
 }
 
 /// Versão do layout da NF-e
@@ -64,12 +66,15 @@ impl Nfe {
             .ok_or("Atributo 'versao' não encontrado na tag <infNFe>")?
             .parse::<VersaoLayout>()?;
 
-        let ide = Identificacao::parse(xml)?;
+        let ide = Identificacao::parse(&xml)?;
+
+        let emit = Emitente::parse(&xml)?;
 
         Ok(Self {
             chave_acesso,
             versao,
-            ide
+            ide,
+            emit
         })
     }
 }

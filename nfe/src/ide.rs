@@ -165,7 +165,7 @@ pub struct ComposicaoChaveAcesso {
 impl Identificacao {
 
     /// Parse da seção <ide>
-    pub(crate) fn parse(xml: Dom) -> Result<Self, String> {
+    pub(crate) fn parse(xml: &Dom) -> Result<Self, String> {
 
         let mut t_ide = Dom::new(DomType::Tag);
         t_ide.set_tag(Tag::new("ide"));
