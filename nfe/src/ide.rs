@@ -13,7 +13,9 @@ pub struct Identificacao {
     pub modelo: ModeloDocumentoFiscal,
     pub emissao: Emissao,
     pub operacao: Operacao,
-    pub codigo_municipio: u32
+    pub codigo_municipio: u32,
+    pub formato_danfe: FormatoImpressaoDanfe,
+    pub ambiente: TipoAmbiente
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
@@ -57,6 +59,24 @@ pub enum TipoEmissao {
     ContigenciaSvcRs = 7,
     /// Contingência off-line da NFC-e
     ContigenciaOfflineNfce = 9
+}
+
+/// Formato de impressão do DANFE
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum FormatoImpressaoDanfe {
+    SemGeracao = 0,
+    NormalRetrato = 1,
+    NormalPaisagem = 2,
+    Simplificado = 3,
+    Nfce = 4,
+    NfceMensagemEletronica = 5
+}
+
+/// Tipo do ambiente da NF
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoAmbiente {
+    Producao = 1,
+    Homologacao = 2,
 }
 
 /// Dados referentes a emissão da nota
@@ -160,6 +180,14 @@ impl Identificacao {
             .parse::<u32>()
             .map_err(|e| e.to_string())?;
 
+        let formato_danfe = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpImp"))
+            .ok_or("Tag <tpImp> não encontrada na <ide>")?[0]
+            .parse::<FormatoImpressaoDanfe>()?;
+
+        let ambiente = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpAmb"))
+            .ok_or("Tag <tpAmb> não encontrada na <ide>")?[0]
+            .parse::<TipoAmbiente>()?;
+
         Ok(Identificacao {
             codigo_uf,
             codigo_chave,
@@ -168,7 +196,9 @@ impl Identificacao {
             modelo,
             emissao,
             operacao,
-            codigo_municipio
+            codigo_municipio,
+            formato_danfe,
+            ambiente
         })
     }
 }
@@ -220,6 +250,32 @@ impl FromStr for TipoEmissao {
             "7" => TipoEmissao::ContigenciaSvcRs,
             "9" => TipoEmissao::ContigenciaOfflineNfce,
             _ => TipoEmissao::EmissaoNormal // 1
+        })
+    }
+}
+
+impl FromStr for FormatoImpressaoDanfe {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "5" => FormatoImpressaoDanfe::NfceMensagemEletronica,
+            "4" => FormatoImpressaoDanfe::Nfce,
+            "3" => FormatoImpressaoDanfe::Simplificado,
+            "2" => FormatoImpressaoDanfe::NormalPaisagem,
+            "1" => FormatoImpressaoDanfe::NormalRetrato,
+            _ => FormatoImpressaoDanfe::SemGeracao // 0
+        })
+    }
+}
+
+impl FromStr for TipoAmbiente {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "1" => TipoAmbiente::Producao,
+            _ => TipoAmbiente::Homologacao // 2
         })
     }
 }
