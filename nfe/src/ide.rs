@@ -114,11 +114,35 @@ pub enum TipoPresencaComprador {
     Outros = 9
 }
 
+/// Tipo do intermediador
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoIntermediador {
+    /// Operação sem intermediador (em site ou plataforma própria)
+    SemIntermediador = 0,
+    /// Operação em site ou plataforma de terceiros (intermediadores/marketplace)
+    EmSiteDeTerceiros = 1,
+}
+
+/// Tipo do processo de emissão
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum TipoProcessoEmissao {
+    /// Emissão de NF-e com aplicativo do contribuinte
+    ViaAplicativoDoContribuinte = 0,
+    /// Emissão de NF-e avulsa pelo Fisco
+    AvulsaPeloFisco = 1,
+    /// Emissão de NF-e avulsa, pelo contribuinte com seu certificado digital, através do site do Fisco
+    AvulsaPeloContribuinte = 2,
+    /// Emissão NF-e pelo contribuinte com aplicativo fornecido pelo Fisco
+    ViaAplicativoDoFisco = 3,
+}
+
 /// Dados referentes a emissão da nota
 pub struct Emissao {
     pub horario: DateTime<Utc>,
     pub tipo: TipoEmissao,
-    pub finalidade: FinalidadeEmissao
+    pub finalidade: FinalidadeEmissao,
+    pub processo: TipoProcessoEmissao,
+    pub versao_processo: String,
 }
 
 /// Dados referentes a operação da nota
@@ -129,6 +153,7 @@ pub struct Operacao {
     pub natureza: String,
     pub consumidor: TipoConsumidor,
     pub presenca: TipoPresencaComprador,
+    pub intermediador: Option<TipoIntermediador>
 }
 
 impl Identificacao {
@@ -181,10 +206,19 @@ impl Identificacao {
                 .ok_or("Tag <finNfe> não encontrada na <ide>")?[0]
                 .parse::<FinalidadeEmissao>()?;
 
+            let processo = parsercher::search_text_from_tag_children(&ide, &Tag::new("procEmi"))
+                .ok_or("Tag <procEmi> não encontrada na <ide>")?[0]
+                .parse::<TipoProcessoEmissao>()?;
+
+            let versao_processo = parsercher::search_text_from_tag_children(&ide, &Tag::new("verProc"))
+                .ok_or("Tag <verProc> não encontrada na <ide>")?[0].to_string();
+
             Emissao {
                 horario,
                 tipo,
-                finalidade
+                finalidade,
+                processo,
+                versao_processo
             }
         };
 
@@ -218,6 +252,14 @@ impl Identificacao {
                 .ok_or("Tag <indPres> não encontrada na <ide>")?[0]
                 .parse::<TipoPresencaComprador>()?;
 
+            let intermediador = {
+                if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("indIntermed")) {
+                    Some(dt[0].parse::<TipoIntermediador>()?)
+                } else {
+                    None
+                }
+            };
+
             Operacao {
                 natureza,
                 tipo,
@@ -225,6 +267,7 @@ impl Identificacao {
                 horario,
                 consumidor,
                 presenca,
+                intermediador
             }
         };
 
@@ -273,7 +316,7 @@ impl FromStr for TipoOperacao {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoOperacao::Saida,
-            _ => TipoOperacao::Entrada
+            _ => TipoOperacao::Entrada // 0
         })
     }
 }
@@ -369,6 +412,30 @@ impl FromStr for TipoPresencaComprador {
             "2" => TipoPresencaComprador::ViaInternel,
             "1" => TipoPresencaComprador::Presencial,
             _ => TipoPresencaComprador::NaoSeAplica // 0
+        })
+    }
+}
+
+impl FromStr for TipoIntermediador {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "1" => TipoIntermediador::EmSiteDeTerceiros,
+            _ => TipoIntermediador::SemIntermediador // 0
+        })
+    }
+}
+
+impl FromStr for TipoProcessoEmissao {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "3" => TipoProcessoEmissao::ViaAplicativoDoFisco,
+            "2" => TipoProcessoEmissao::AvulsaPeloContribuinte,
+            "1" => TipoProcessoEmissao::AvulsaPeloFisco,
+            _ => TipoProcessoEmissao::ViaAplicativoDoContribuinte // 0
         })
     }
 }

@@ -30,6 +30,9 @@ fn basico() -> Result<(), String> {
     assert_eq!(FinalidadeEmissao::Normal, nfe.ide.emissao.finalidade);
     assert_eq!(TipoConsumidor::Normal, nfe.ide.operacao.consumidor);
     assert_eq!(TipoPresencaComprador::Presencial, nfe.ide.operacao.presenca);
+    assert_eq!(None, nfe.ide.operacao.intermediador);
+    assert_eq!(TipoProcessoEmissao::ViaAplicativoDoContribuinte, nfe.ide.emissao.processo);
+    assert_eq!("fernando", nfe.ide.emissao.versao_processo);
 
     Ok(())
 }
