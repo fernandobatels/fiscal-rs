@@ -2,11 +2,13 @@
 
 mod ide;
 mod emit;
+mod dest;
 mod nfe;
 
 pub use crate::{
     nfe::*,
     emit::*,
+    dest::*,
     ide::*
 };
 

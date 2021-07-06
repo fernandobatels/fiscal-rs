@@ -7,13 +7,15 @@ use std::convert::TryFrom;
 use parsercher::{self, dom::*};
 use super::ide::*;
 use super::emit::*;
+use super::dest::*;
 
 /// Nota Fiscal Eletrônica
 pub struct Nfe {
     pub versao: VersaoLayout,
     pub chave_acesso: String,
     pub ide: Identificacao,
-    pub emit: Emitente
+    pub emit: Emitente,
+    pub dest: Destinatario
 }
 
 /// Versão do layout da NF-e
@@ -70,11 +72,14 @@ impl Nfe {
 
         let emit = Emitente::parse(&xml)?;
 
+        let dest = Destinatario::parse(&xml)?;
+
         Ok(Self {
             chave_acesso,
             versao,
             ide,
-            emit
+            emit,
+            dest
         })
     }
 }
