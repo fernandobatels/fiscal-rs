@@ -9,15 +9,16 @@ pub struct Destinatario {
 impl Destinatario {
 
     /// Parse da seção <emit>
-    pub(crate) fn parse(xml: &Dom) -> Result<Self, String> {
+    pub(crate) fn parse(xml: &Dom) -> Result<Option<Self>, String> {
 
         let mut t_dest = Dom::new(DomType::Tag);
         t_dest.set_tag(Tag::new("dest"));
 
-        let dest = parsercher::search_dom(&xml, &t_dest)
-            .ok_or("Tag <dest> não encontrada")?;
-
-        Ok(Destinatario {
-        })
+        if let Some(_dest) = parsercher::search_dom(&xml, &t_dest) {
+            Ok(Some(Destinatario {
+            }))
+        } else {
+            Ok(None)
+        }
     }
 }

@@ -15,14 +15,3 @@ fn nfe() -> Result<(), String> {
 
     Ok(())
 }
-
-#[test]
-fn nfce() -> Result<(), String> {
-
-    let f = File::open("xmls/nfce_layout4.xml")
-        .map_err(|e| e.to_string())?;
-    let dest = Nfe::try_from(f)?.dest;
-
-
-    Ok(())
-}

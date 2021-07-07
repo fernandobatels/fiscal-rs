@@ -25,24 +25,6 @@ fn nfe() -> Result<(), String> {
 }
 
 #[test]
-fn nfce() -> Result<(), String> {
-
-    let f = File::open("xmls/nfce_layout4.xml")
-        .map_err(|e| e.to_string())?;
-    let ide = Nfe::try_from(f)?.ide;
-
-    assert_eq!(29, ide.codigo_uf);
-    assert_eq!(5108402, ide.codigo_municipio);
-    assert_eq!(1, ide.serie);
-    assert_eq!(165439, ide.numero);
-    assert_eq!(ModeloDocumentoFiscal::Nfce, ide.modelo);
-    assert_eq!(FormatoImpressaoDanfe::Nfce, ide.formato_danfe);
-    assert_eq!(TipoAmbiente::Homologacao, ide.ambiente);
-
-    Ok(())
-}
-
-#[test]
 fn chave_acesso() -> Result<(), String> {
 
     let f = File::open("xmls/nfe_layout4.xml")
