@@ -1,16 +1,13 @@
 //! NF-e - Representação da nota fiscal eletrônica
 
-use std::str::FromStr;
 use parsercher::{self, dom::*};
-use super::ide::*;
-use super::emit::*;
-use super::dest::*;
+use crate::*;
 
 /// Base da Nota Fiscal Eletrônica
 ///
 /// Representa o documento ainda sem a interface
 /// do seu modelo(NF-e x NFC-e)
-pub struct NfeBase {
+pub struct Nfe {
     pub versao: VersaoLayout,
     pub chave_acesso: String,
     pub ide: Identificacao,
@@ -18,27 +15,9 @@ pub struct NfeBase {
     pub dest: Option<Destinatario>
 }
 
-/// Versão do layout da NF-e
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub enum VersaoLayout {
-    V4_00 = 4,
-    Outra = -1
-}
-
-impl FromStr for VersaoLayout {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "4.00" => VersaoLayout::V4_00,
-            _ => VersaoLayout::Outra
-        })
-    }
-}
-
 /// Parse da NF-e, sem distinção dos modelos, a partir
 /// de uma string
-pub fn parse(s: &str) -> Result<NfeBase, String> {
+pub fn parse(s: &str) -> Result<Nfe, String> {
 
     let xml = parsercher::parse(s)
         .map_err(|e| e.to_string())?;
@@ -63,7 +42,7 @@ pub fn parse(s: &str) -> Result<NfeBase, String> {
 
     let dest = Destinatario::parse(&xml)?;
 
-    Ok(NfeBase {
+    Ok(Nfe {
         chave_acesso,
         versao,
         ide,

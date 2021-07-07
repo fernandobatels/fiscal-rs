@@ -1,14 +1,11 @@
 //! Interface para o modelo 55 da NF-e
 
-
 use std::io::Read;
 use std::fs::File;
 use std::str::FromStr;
 use std::convert::{TryFrom, TryInto};
-use super::ide::*;
-use super::emit::*;
-use super::dest::*;
-use super::nfe_base::*;
+use super::*;
+use super::base::{nfe as nfe_base, nfe::Nfe as NfeBase};
 
 /// Nota Fiscal Eletrônica
 ///
@@ -46,7 +43,7 @@ impl FromStr for Nfe {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        parse(s)?.try_into()
+        nfe_base::parse(s)?.try_into()
     }
 }
 
