@@ -52,7 +52,8 @@ impl Emitente {
             }
         };
 
-        let endereco = Endereco::parse(&xml, "enderEmit")?;
+        let endereco = Endereco::parse(&xml, "enderEmit")?
+            .ok_or("Tag <enderEmit> não encontrada na <emit>")?;
 
         Ok(Emitente {
             cnpj,

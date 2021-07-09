@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::Read;
 
 use crate::*;
-use crate::base::nfe;
+use crate::base;
 
 #[test]
 fn nfe() -> Result<(), String> {
@@ -32,7 +32,7 @@ fn nfce() -> Result<(), String> {
 
     // O NFC-e ainda não é suportado pela crate,
     // mas o seu parse usando a NfeBase deve funcionar
-    let nfe = nfe::parse(&xml)?;
+    let nfe = base::parse(&xml)?;
 
     assert_eq!("29181033657677000156650010001654399001654399", nfe.chave_acesso);
     assert_eq!(VersaoLayout::V4_00, nfe.versao);

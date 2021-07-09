@@ -1,11 +1,14 @@
-//! Interface para o modelo 55 da NF-e
+//! Modelo 55 da NF-e
 
 use std::io::Read;
 use std::fs::File;
 use std::str::FromStr;
 use std::convert::{TryFrom, TryInto};
 use super::*;
-use super::base::{nfe as nfe_base, nfe::Nfe as NfeBase};
+use super::base::{self as nfe_base, Nfe as NfeBase};
+
+mod dest;
+pub use dest::*;
 
 /// Nota Fiscal Eletrônica
 ///
@@ -24,10 +27,10 @@ impl TryFrom<NfeBase> for Nfe {
     fn try_from(doc: NfeBase) -> Result<Self, Self::Error> {
 
         if doc.ide.modelo != ModeloDocumentoFiscal::Nfe {
-            return Err(format!("Modelo do documento não suportador: {:?}", doc.ide.modelo));
+            return Err(format!("Modelo do documento não suportado: {:?}", doc.ide.modelo));
         }
 
-        let dest = doc.dest.ok_or("Destinatário não informado no documento")?;
+        let dest = doc.dest.ok_or("Destinatário não informado no documento")?.try_into()?;
 
         Ok(Self {
             versao: doc.versao,
