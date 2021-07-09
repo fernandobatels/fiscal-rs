@@ -1,13 +1,13 @@
 //! nfe - Crate para acesso aos dados da Nota Fiscal Eletrônica
 
-mod padrao;
+mod comum;
 mod nfe;
 
 pub mod base;
 
 pub use crate::{
     nfe::*,
-    padrao::*
+    comum::*
 };
 
 #[cfg(test)]
