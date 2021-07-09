@@ -19,19 +19,19 @@ pub struct Endereco {
 impl Endereco {
 
     /// Parse da tag de endereço
-    pub(crate) fn parse(xml: &Dom) -> Result<Endereco, String> {
+    pub(crate) fn parse(xml: &Dom, tag: &str) -> Result<Endereco, String> {
         let mut t_endr = Dom::new(DomType::Tag);
-        t_endr.set_tag(Tag::new("enderEmit"));
+        t_endr.set_tag(Tag::new(tag));
 
         let endr = parsercher::search_dom(&xml, &t_endr)
-            .ok_or("Tag <enderEmit> não encontrada")?;
+            .ok_or(format!("Tag <{}> não encontrada", tag))?;
 
         let logradouro = parsercher::search_text_from_tag_children(&endr, &Tag::new("xLgr"))
-            .ok_or("Tag <xLgr> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <xLgr> não encontrada na <{}>", tag))?[0]
             .to_string();
 
         let numero = parsercher::search_text_from_tag_children(&endr, &Tag::new("nro"))
-            .ok_or("Tag <nro> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <nro> não encontrada na <{}>", tag))?[0]
             .to_string();
 
         let complemento = {
@@ -43,24 +43,24 @@ impl Endereco {
         };
 
         let bairro = parsercher::search_text_from_tag_children(&endr, &Tag::new("xBairro"))
-            .ok_or("Tag <xBairro> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <xBairro> não encontrada na <{}>", tag))?[0]
             .to_string();
 
         let codigo_municipio = parsercher::search_text_from_tag_children(&endr, &Tag::new("cMun"))
-            .ok_or("Tag <cMun> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <cMun> não encontrada na <{}>", tag))?[0]
             .parse::<u32>()
             .map_err(|e| e.to_string())?;
 
         let nome_municipio = parsercher::search_text_from_tag_children(&endr, &Tag::new("xMun"))
-            .ok_or("Tag <xMun> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <xMun> não encontrada na <{}>", tag))?[0]
             .to_string();
 
         let sigla_uf = parsercher::search_text_from_tag_children(&endr, &Tag::new("UF"))
-            .ok_or("Tag <UF> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <UF> não encontrada na <{}>", tag))?[0]
             .to_string();
 
         let cep = parsercher::search_text_from_tag_children(&endr, &Tag::new("CEP"))
-            .ok_or("Tag <CEP> não encontrada na <enderEmit>")?[0]
+            .ok_or(format!("Tag <CEP> não encontrada na <{}>", tag))?[0]
             .parse::<u32>()
             .map_err(|e| e.to_string())?;
 

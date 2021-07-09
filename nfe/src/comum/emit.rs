@@ -52,7 +52,7 @@ impl Emitente {
             }
         };
 
-        let endereco = Endereco::parse(&xml)?;
+        let endereco = Endereco::parse(&xml, "enderEmit")?;
 
         Ok(Emitente {
             cnpj,
