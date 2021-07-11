@@ -2,7 +2,7 @@
 
 use parsercher::dom::*;
 use std::str::FromStr;
-use crate::comum::*;
+use super::endereco::*;
 
 /// Destinarário base da NF-e
 pub struct Destinatario {

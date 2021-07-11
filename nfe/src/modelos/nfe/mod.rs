@@ -4,8 +4,13 @@ use std::io::Read;
 use std::fs::File;
 use std::str::FromStr;
 use std::convert::{TryFrom, TryInto};
-use super::*;
-use super::base::{self as nfe_base, Nfe as NfeBase};
+pub use crate::base::versao::*;
+pub use crate::base::ide::*;
+pub use crate::base::emit::*;
+pub use crate::base::endereco::*;
+pub use crate::base::operacao::*;
+pub use crate::base::emissao::*;
+use crate::base::{self as nfe_base, Nfe as NfeBase};
 
 mod dest;
 pub use dest::*;

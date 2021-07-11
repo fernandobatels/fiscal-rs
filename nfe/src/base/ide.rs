@@ -2,7 +2,8 @@
 
 use std::str::FromStr;
 use parsercher::dom::*;
-use super::*;
+use super::operacao::*;
+use super::emissao::*;
 
 /// Identificação da NF-e
 pub struct Identificacao {

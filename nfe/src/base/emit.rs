@@ -1,7 +1,7 @@
 //! Emitente da NF-e
 
 use parsercher::dom::*;
-use super::*;
+use super::endereco::*;
 
 /// Emitente da NF-e
 pub struct Emitente {

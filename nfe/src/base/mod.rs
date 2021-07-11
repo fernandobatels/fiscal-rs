@@ -1,10 +1,20 @@
-//! NF-e - Representação da nota fiscal eletrônica
+//! Base da NF-e
+//!
+//! Tipos e estruturas para tratamento da NF-e sem
+//! distinção dos modelos.
 
 use parsercher::{self, dom::*};
-use crate::comum::*;
-
-pub(crate) mod dest;
-pub use dest::*;
+pub mod versao;
+pub mod ide;
+pub mod emit;
+pub mod dest;
+pub mod endereco;
+pub mod operacao;
+pub mod emissao;
+use versao::VersaoLayout;
+use ide::Identificacao;
+use emit::Emitente;
+use dest::Destinatario;
 
 /// Base da Nota Fiscal Eletrônica
 ///

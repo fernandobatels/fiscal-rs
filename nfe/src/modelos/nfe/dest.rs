@@ -1,9 +1,9 @@
 //! Destinarário da NF-e no modelo 55
 
 use std::convert::TryFrom;
-use super::comum::*;
-use super::base::Destinatario as DestinatarioBase;
-pub use super::base::IndicadorContribuicaoIe;
+use crate::base::dest::Destinatario as DestinatarioBase;
+pub use crate::base::endereco::Endereco;
+pub use crate::base::dest::IndicadorContribuicaoIe;
 
 /// Destinarário da NF-e
 pub struct Destinatario {
