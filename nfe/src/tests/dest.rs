@@ -14,6 +14,8 @@ fn base() -> Result<(), String> {
 
     assert_eq!("58716523000119", dest.cnpj);
     assert_eq!("NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL", dest.razao_social);
+    assert_eq!(IndicadorContribuicaoIe::Contribuinte, dest.indicador_ie);
+    assert_eq!(Some("112006603110".to_string()), dest.ie);
 
     Ok(())
 }

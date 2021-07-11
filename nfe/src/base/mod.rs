@@ -4,7 +4,7 @@ use parsercher::{self, dom::*};
 use crate::comum::*;
 
 pub(crate) mod dest;
-pub use dest::Destinatario;
+pub use dest::*;
 
 /// Base da Nota Fiscal Eletrônica
 ///

@@ -3,12 +3,15 @@
 use std::convert::TryFrom;
 use super::comum::*;
 use super::base::Destinatario as DestinatarioBase;
+pub use super::base::IndicadorContribuicaoIe;
 
 /// Destinarário da NF-e
 pub struct Destinatario {
     pub cnpj: String,
     pub razao_social: String,
     pub endereco: Endereco,
+    pub ie: Option<String>,
+    pub indicador_ie: IndicadorContribuicaoIe
 }
 
 impl TryFrom<DestinatarioBase> for Destinatario {
@@ -23,7 +26,9 @@ impl TryFrom<DestinatarioBase> for Destinatario {
         Ok(Self {
             cnpj: dest.cnpj.clone(),
             razao_social,
-            endereco
+            endereco,
+            ie: dest.ie.clone(),
+            indicador_ie: dest.indicador_ie,
         })
     }
 }
