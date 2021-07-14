@@ -1,6 +1,5 @@
 //! Modelo 55 da NF-e
 
-use std::io::Read;
 use std::fs::File;
 use std::str::FromStr;
 use std::convert::{TryFrom, TryInto};
@@ -10,7 +9,7 @@ pub use crate::base::emit::*;
 pub use crate::base::endereco::*;
 pub use crate::base::operacao::*;
 pub use crate::base::emissao::*;
-use crate::base::{self as nfe_base, Nfe as NfeBase};
+use crate::base::Nfe as NfeBase;
 
 mod dest;
 pub use dest::*;
@@ -23,7 +22,7 @@ pub struct Nfe {
     pub chave_acesso: String,
     pub ide: Identificacao,
     pub emit: Emitente,
-    pub dest: Destinatario
+    pub dest: Destinatario,
 }
 
 impl TryFrom<NfeBase> for Nfe {
@@ -51,19 +50,14 @@ impl FromStr for Nfe {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        nfe_base::parse(s)?.try_into()
+        s.parse::<NfeBase>()?.try_into()
     }
 }
 
 impl TryFrom<File> for Nfe {
     type Error = String;
 
-    fn try_from(mut f: File) -> Result<Self, Self::Error> {
-
-        let mut xml = String::new();
-        f.read_to_string(&mut xml)
-            .map_err(|e| e.to_string())?;
-
-        xml.parse::<Nfe>()
+    fn try_from(f: File) -> Result<Self, Self::Error> {
+        NfeBase::try_from(f)?.try_into()
     }
 }
