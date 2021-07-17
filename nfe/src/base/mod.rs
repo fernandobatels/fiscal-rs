@@ -15,10 +15,13 @@ pub mod dest;
 pub mod endereco;
 pub mod operacao;
 pub mod emissao;
+pub mod item;
+pub mod produto;
 use versao::VersaoLayout;
 use ide::Identificacao;
 use emit::Emitente;
 use dest::Destinatario;
+use item::Item;
 
 /// Base da Nota Fiscal Eletrônica
 ///
@@ -30,6 +33,7 @@ pub struct Nfe {
     pub ide: Identificacao,
     pub emit: Emitente,
     pub dest: Option<Destinatario>,
+    pub itens: Vec<Item>,
 }
 
 impl Nfe {
@@ -60,12 +64,15 @@ impl Nfe {
 
         let dest = Destinatario::parse(&xml)?;
 
+        let itens = Item::parse(&xml)?;
+
         Ok(Nfe {
             chave_acesso,
             versao,
             ide,
             emit,
             dest,
+            itens
         })
     }
 }

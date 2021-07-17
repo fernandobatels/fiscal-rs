@@ -9,6 +9,8 @@ pub use crate::base::emit::*;
 pub use crate::base::endereco::*;
 pub use crate::base::operacao::*;
 pub use crate::base::emissao::*;
+pub use crate::base::produto::*;
+pub use crate::base::item::*;
 use crate::base::Nfe as NfeBase;
 
 mod dest;
@@ -23,6 +25,7 @@ pub struct Nfe {
     pub ide: Identificacao,
     pub emit: Emitente,
     pub dest: Destinatario,
+    pub itens: Vec<Item>,
 }
 
 impl TryFrom<NfeBase> for Nfe {
@@ -42,6 +45,7 @@ impl TryFrom<NfeBase> for Nfe {
             ide: doc.ide,
             emit: doc.emit,
             dest: dest,
+            itens: doc.itens
         })
     }
 }
