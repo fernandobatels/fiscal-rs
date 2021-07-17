@@ -50,6 +50,12 @@ fn produto() -> Result<(), String> {
     assert_eq!("UN", produto.tributacao.unidade);
     assert_eq!(10.00, produto.tributacao.quantidade);
     assert_eq!(50.00, produto.tributacao.valor_unitario);
+    assert_eq!(500.00, produto.valor_bruto);
+    assert_eq!(None, produto.valor_frete);
+    assert_eq!(None, produto.valor_seguro);
+    assert_eq!(None, produto.valor_desconto);
+    assert_eq!(None, produto.valor_outros);
+    assert_eq!(true, produto.valor_compoe_total_nota);
 
     Ok(())
 }
@@ -82,6 +88,12 @@ fn produtos() -> Result<(), String> {
     assert_eq!("UN", produto.tributacao.unidade);
     assert_eq!(1.00, produto.tributacao.quantidade);
     assert_eq!(96.22, produto.tributacao.valor_unitario);
+    assert_eq!(96.22, produto.valor_bruto);
+    assert_eq!(None, produto.valor_frete);
+    assert_eq!(None, produto.valor_seguro);
+    assert_eq!(None, produto.valor_desconto);
+    assert_eq!(None, produto.valor_outros);
+    assert_eq!(true, produto.valor_compoe_total_nota);
 
     let produto = &itens[1].produto;
 
@@ -102,6 +114,12 @@ fn produtos() -> Result<(), String> {
     assert_eq!("UN", produto.tributacao.unidade);
     assert_eq!(1.00, produto.tributacao.quantidade);
     assert_eq!(53.78, produto.tributacao.valor_unitario);
+    assert_eq!(53.78, produto.valor_bruto);
+    assert_eq!(None, produto.valor_frete);
+    assert_eq!(None, produto.valor_seguro);
+    assert_eq!(None, produto.valor_desconto);
+    assert_eq!(None, produto.valor_outros);
+    assert_eq!(true, produto.valor_compoe_total_nota);
 
     Ok(())
 }

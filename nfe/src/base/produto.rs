@@ -23,6 +23,18 @@ pub struct Produto {
     pub quantidade: f32,
     /// Valor unitário do produto
     pub valor_unitario: f32,
+    /// Valor total bruto do produto. ICMS incluso
+    pub valor_bruto: f32,
+    /// Valor total do frete do produto
+    pub valor_frete: Option<f32>,
+    /// Valor total do seguro do produto
+    pub valor_seguro: Option<f32>,
+    /// Valor total desconto
+    pub valor_desconto: Option<f32>,
+    /// Outras despesas acessórias
+    pub valor_outros: Option<f32>,
+    /// Indica se valor do bruto entra no valor total da NF-e
+    pub valor_compoe_total_nota: bool
 }
 
 impl Produto {
@@ -84,6 +96,54 @@ impl Produto {
 
         let tributacao = ProdutoTributacao::parse(&prod)?;
 
+        let valor_bruto = parsercher::search_text_from_tag_children(&prod, &Tag::new("vProd"))
+            .ok_or("Tag <vProd> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
+        let valor_frete = {
+            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vFrete")) {
+                Some(vl[0].parse::<f32>()
+                     .map_err(|e| e.to_string())?)
+            } else {
+                None
+            }
+        };
+
+        let valor_desconto = {
+            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vDesc")) {
+                Some(vl[0].parse::<f32>()
+                     .map_err(|e| e.to_string())?)
+            } else {
+                None
+            }
+        };
+
+        let valor_seguro = {
+            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vSeg")) {
+                Some(vl[0].parse::<f32>()
+                     .map_err(|e| e.to_string())?)
+            } else {
+                None
+            }
+        };
+
+        let valor_outros = {
+            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vOutro")) {
+                Some(vl[0].parse::<f32>()
+                     .map_err(|e| e.to_string())?)
+            } else {
+                None
+            }
+        };
+
+        let valor_compoe_total_nota = {
+            let ind = parsercher::search_text_from_tag_children(&prod, &Tag::new("indTot"))
+                .ok_or("Tag <indTot> não encontrada na <prod>")?[0].to_string();
+
+            ind == "1"
+        };
+
         Ok(Produto {
             codigo,
             gtin,
@@ -93,7 +153,13 @@ impl Produto {
             unidade,
             quantidade,
             valor_unitario,
-            tributacao
+            tributacao,
+            valor_bruto,
+            valor_frete,
+            valor_desconto,
+            valor_seguro,
+            valor_outros,
+            valor_compoe_total_nota,
         })
     }
 }
