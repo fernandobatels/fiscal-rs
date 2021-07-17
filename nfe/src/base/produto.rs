@@ -45,7 +45,6 @@ impl Produto {
 
                 match gtin.to_lowercase().trim() {
                     "sem gtin" => None,
-                    "sem ean" => None,
                     _ => Some(gtin)
                 }
             } else {
@@ -111,6 +110,14 @@ pub struct ProdutoTributacao {
     pub codigo_excecao_ipi: Option<String>,
     /// Código Fiscal de Operações e Prestações
     pub cfop: String,
+    /// GTIN (Global Trade Item Number) da unidade tributável do produto
+    pub gtin: Option<String>,
+    /// Unidade tributável
+    pub unidade: String,
+    /// Quantidade tributável
+    pub quantidade: f32,
+    /// Valor unitário de tributação
+    pub valor_unitario: f32,
 }
 
 impl ProdutoTributacao {
@@ -153,12 +160,43 @@ impl ProdutoTributacao {
             }
         };
 
+        let gtin = {
+            if let Some(ean) = parsercher::search_text_from_tag_children(&prod, &Tag::new("cEANTrib")) {
+                let gtin = ean[0].to_string();
+
+                match gtin.to_lowercase().trim() {
+                    "sem gtin" => None,
+                    _ => Some(gtin)
+                }
+            } else {
+                None
+            }
+        };
+
+        let unidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("uTrib"))
+            .ok_or("Tag <uTrib> não encontrada na <prod>")?[0]
+            .to_string();
+
+        let quantidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("qTrib"))
+            .ok_or("Tag <qTrib> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
+        let valor_unitario = parsercher::search_text_from_tag_children(&prod, &Tag::new("vUnTrib"))
+            .ok_or("Tag <vUnTrib> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
         Ok(ProdutoTributacao {
             cest,
             escala_relevante,
             codigo_beneficio_fiscal,
             codigo_excecao_ipi,
             cfop,
+            gtin,
+            unidade,
+            quantidade,
+            valor_unitario,
         })
     }
 }
