@@ -13,18 +13,10 @@ pub struct Produto {
     pub descricao: String,
     /// NCM - Nomenclatura Comum do Mercosul
     pub ncm: String,
-    /// CEST - Código Especificador da Substituição Tributária
-    pub cest: Option<String>,
-    /// Indicador de Produção em escala relevante
-    pub escala_relevante: Option<EscalaRelevante>,
     /// CNPJ do Fabricante da Mercadoria
     pub fabricante_cnpj: Option<String>,
-    /// Código de Benefício Fiscal na UF aplicado ao item
-    pub codigo_beneficio_fiscal: Option<String>,
-    /// Código Exceção da Tabela de IPI
-    pub codigo_excecao_ipi: Option<String>,
-    /// Código Fiscal de Operações e Prestações
-    pub cfop: String,
+    /// Dados sobre a tributação do produto
+    pub tributacao: ProdutoTributacao,
     /// Unidade de medida da comercialização
     pub unidade: String,
     /// Quantidade da comercialização do produto
@@ -69,6 +61,66 @@ impl Produto {
             .ok_or("Tag <NCM> não encontrada na <prod>")?[0]
             .to_string();
 
+        let fabricante_cnpj = {
+            if let Some(fa) = parsercher::search_text_from_tag_children(&prod, &Tag::new("CNPJFab")) {
+                Some(fa[0].to_string())
+            } else {
+                None
+            }
+        };
+
+        let unidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("uCom"))
+            .ok_or("Tag <uCom> não encontrada na <prod>")?[0]
+            .to_string();
+
+        let quantidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("qCom"))
+            .ok_or("Tag <qCom> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
+        let valor_unitario = parsercher::search_text_from_tag_children(&prod, &Tag::new("vUnCom"))
+            .ok_or("Tag <vUnCom> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
+        let tributacao = ProdutoTributacao::parse(&prod)?;
+
+        Ok(Produto {
+            codigo,
+            gtin,
+            descricao,
+            ncm,
+            fabricante_cnpj,
+            unidade,
+            quantidade,
+            valor_unitario,
+            tributacao
+        })
+    }
+}
+
+/// Dados sobre a tributação do produto
+pub struct ProdutoTributacao {
+    /// CEST - Código Especificador da Substituição Tributária
+    pub cest: Option<String>,
+    /// Indicador de Produção em escala relevante
+    pub escala_relevante: Option<EscalaRelevante>,
+    /// Código de Benefício Fiscal na UF aplicado ao item
+    pub codigo_beneficio_fiscal: Option<String>,
+    /// Código Exceção da Tabela de IPI
+    pub codigo_excecao_ipi: Option<String>,
+    /// Código Fiscal de Operações e Prestações
+    pub cfop: String,
+}
+
+impl ProdutoTributacao {
+    /// Parse do produto do item
+    pub(crate) fn parse(prod: &Dom) -> Result<ProdutoTributacao, String> {
+
+        let cfop = parsercher::search_text_from_tag_children(&prod, &Tag::new("CFOP"))
+            .ok_or("Tag <CFOP> não encontrada na <prod>")?[0]
+            .to_string();
+
         let cest = {
             if let Some(ce) = parsercher::search_text_from_tag_children(&prod, &Tag::new("CEST")) {
                 Some(ce[0].to_string())
@@ -80,14 +132,6 @@ impl Produto {
         let escala_relevante = {
             if let Some(er) = parsercher::search_text_from_tag_children(&prod, &Tag::new("indEscala")) {
                 Some(er[0].parse::<EscalaRelevante>()?)
-            } else {
-                None
-            }
-        };
-
-        let fabricante_cnpj = {
-            if let Some(fa) = parsercher::search_text_from_tag_children(&prod, &Tag::new("CNPJFab")) {
-                Some(fa[0].to_string())
             } else {
                 None
             }
@@ -109,38 +153,12 @@ impl Produto {
             }
         };
 
-        let cfop = parsercher::search_text_from_tag_children(&prod, &Tag::new("CFOP"))
-            .ok_or("Tag <CFOP> não encontrada na <prod>")?[0]
-            .to_string();
-
-        let unidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("uCom"))
-            .ok_or("Tag <uCom> não encontrada na <prod>")?[0]
-            .to_string();
-
-        let quantidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("qCom"))
-            .ok_or("Tag <qCom> não encontrada na <prod>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        let valor_unitario = parsercher::search_text_from_tag_children(&prod, &Tag::new("vUnCom"))
-            .ok_or("Tag <vUnCom> não encontrada na <prod>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        Ok(Produto {
-            codigo,
-            gtin,
-            descricao,
-            ncm,
+        Ok(ProdutoTributacao {
             cest,
             escala_relevante,
-            fabricante_cnpj,
             codigo_beneficio_fiscal,
             codigo_excecao_ipi,
             cfop,
-            unidade,
-            quantidade,
-            valor_unitario
         })
     }
 }
