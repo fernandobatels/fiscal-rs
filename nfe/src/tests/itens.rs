@@ -38,6 +38,9 @@ fn produto() -> Result<(), String> {
     assert_eq!("UM PRODUTO TESTE QUALQUER", produto.descricao);
     assert_eq!("64011000", produto.ncm);
     assert_eq!(Some("1234567".to_string()), produto.cest);
+    assert_eq!(None, produto.escala_relevante);
+    assert_eq!(None, produto.fabricante_cnpj);
+    assert_eq!(None, produto.codigo_beneficio_fiscal);
 
     Ok(())
 }
@@ -58,6 +61,9 @@ fn produtos() -> Result<(), String> {
     assert_eq!("(153 - C2075) -CILINDRO MESTRE DUPLO UN", produto.descricao);
     assert_eq!("87083090", produto.ncm);
     assert_eq!(None, produto.cest);
+    assert_eq!(None, produto.escala_relevante);
+    assert_eq!(None, produto.fabricante_cnpj);
+    assert_eq!(None, produto.codigo_beneficio_fiscal);
 
     let produto = &itens[1].produto;
 
@@ -66,6 +72,9 @@ fn produtos() -> Result<(), String> {
     assert_eq!("(292 - BAH0031D) -ROLAMENTO RODA DIANTEIRO SEM ABS UN", produto.descricao);
     assert_eq!("84821090", produto.ncm);
     assert_eq!(None, produto.cest);
+    assert_eq!(None, produto.escala_relevante);
+    assert_eq!(None, produto.fabricante_cnpj);
+    assert_eq!(None, produto.codigo_beneficio_fiscal);
 
     Ok(())
 }
