@@ -5,9 +5,11 @@ use parsercher::dom::*;
 
 /// Produto do item da nota
 pub struct Produto {
+    /// Código do produto
     pub codigo: String,
     /// GTIN (Global Trade Item Number) do produto, antigo código EAN ou código de barras
     pub gtin: Option<String>,
+    /// Descrição do produto
     pub descricao: String,
     /// NCM - Nomenclatura Comum do Mercosul
     pub ncm: String,
@@ -19,6 +21,16 @@ pub struct Produto {
     pub fabricante_cnpj: Option<String>,
     /// Código de Benefício Fiscal na UF aplicado ao item
     pub codigo_beneficio_fiscal: Option<String>,
+    /// Código Exceção da Tabela de IPI
+    pub codigo_excecao_ipi: Option<String>,
+    /// Código Fiscal de Operações e Prestações
+    pub cfop: String,
+    /// Unidade de medida da comercialização
+    pub unidade: String,
+    /// Quantidade da comercialização do produto
+    pub quantidade: f32,
+    /// Valor unitário do produto
+    pub valor_unitario: f32,
 }
 
 impl Produto {
@@ -89,6 +101,32 @@ impl Produto {
             }
         };
 
+        let codigo_excecao_ipi = {
+            if let Some(ex) = parsercher::search_text_from_tag_children(&prod, &Tag::new("EXTIPI")) {
+                Some(ex[0].to_string())
+            } else {
+                None
+            }
+        };
+
+        let cfop = parsercher::search_text_from_tag_children(&prod, &Tag::new("CFOP"))
+            .ok_or("Tag <CFOP> não encontrada na <prod>")?[0]
+            .to_string();
+
+        let unidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("uCom"))
+            .ok_or("Tag <uCom> não encontrada na <prod>")?[0]
+            .to_string();
+
+        let quantidade = parsercher::search_text_from_tag_children(&prod, &Tag::new("qCom"))
+            .ok_or("Tag <qCom> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
+        let valor_unitario = parsercher::search_text_from_tag_children(&prod, &Tag::new("vUnCom"))
+            .ok_or("Tag <vUnCom> não encontrada na <prod>")?[0]
+            .parse::<f32>()
+            .map_err(|e| e.to_string())?;
+
         Ok(Produto {
             codigo,
             gtin,
@@ -97,7 +135,12 @@ impl Produto {
             cest,
             escala_relevante,
             fabricante_cnpj,
-            codigo_beneficio_fiscal
+            codigo_beneficio_fiscal,
+            codigo_excecao_ipi,
+            cfop,
+            unidade,
+            quantidade,
+            valor_unitario
         })
     }
 }
