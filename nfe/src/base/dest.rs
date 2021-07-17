@@ -1,8 +1,8 @@
 //! Destinarário da NF-e
 
+use super::endereco::*;
 use parsercher::dom::*;
 use std::str::FromStr;
-use super::endereco::*;
 
 /// Destinarário base da NF-e
 pub struct Destinatario {
@@ -10,24 +10,24 @@ pub struct Destinatario {
     pub razao_social: Option<String>,
     pub endereco: Option<Endereco>,
     pub ie: Option<String>,
-    pub indicador_ie: IndicadorContribuicaoIe
+    pub indicador_ie: IndicadorContribuicaoIe,
 }
 
 impl Destinatario {
     /// Parse da seção <emit>
     pub(crate) fn parse(xml: &Dom) -> Result<Option<Destinatario>, String> {
-
         let mut t_dest = Dom::new(DomType::Tag);
         t_dest.set_tag(Tag::new("dest"));
 
         if let Some(dest) = parsercher::search_dom(&xml, &t_dest) {
-
             let cnpj = parsercher::search_text_from_tag_children(&dest, &Tag::new("CNPJ"))
                 .ok_or("Tag <CNPJ> não encontrada na <dest>")?[0]
                 .to_string();
 
             let razao_social = {
-                if let Some(ra) = parsercher::search_text_from_tag_children(&dest, &Tag::new("xNome")) {
+                if let Some(ra) =
+                    parsercher::search_text_from_tag_children(&dest, &Tag::new("xNome"))
+                {
                     Some(ra[0].to_string())
                 } else {
                     None
@@ -37,30 +37,31 @@ impl Destinatario {
             let endereco = Endereco::parse(&xml, "enderDest")?;
 
             let ie = {
-                if let Some(ie) = parsercher::search_text_from_tag_children(&dest, &Tag::new("IE")) {
+                if let Some(ie) = parsercher::search_text_from_tag_children(&dest, &Tag::new("IE"))
+                {
                     Some(ie[0].to_string())
                 } else {
                     None
                 }
             };
 
-            let indicador_ie = parsercher::search_text_from_tag_children(&dest, &Tag::new("indIEDest"))
-                .ok_or("Tag <indIEDest> não encontrada na <dest>")?[0]
-                .parse::<IndicadorContribuicaoIe>()?;
+            let indicador_ie =
+                parsercher::search_text_from_tag_children(&dest, &Tag::new("indIEDest"))
+                    .ok_or("Tag <indIEDest> não encontrada na <dest>")?[0]
+                    .parse::<IndicadorContribuicaoIe>()?;
 
             Ok(Some(Destinatario {
                 cnpj,
                 razao_social,
                 endereco,
                 ie,
-                indicador_ie
+                indicador_ie,
             }))
         } else {
             Ok(None)
         }
     }
 }
-
 
 /// Indicador da IE do destinatário
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
@@ -80,7 +81,7 @@ impl FromStr for IndicadorContribuicaoIe {
         Ok(match s {
             "9" => IndicadorContribuicaoIe::NaoContribuinte,
             "2" => IndicadorContribuicaoIe::Isento,
-            _ => IndicadorContribuicaoIe::Contribuinte // 1
+            _ => IndicadorContribuicaoIe::Contribuinte, // 1
         })
     }
 }

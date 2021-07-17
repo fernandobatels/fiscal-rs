@@ -1,16 +1,14 @@
 //! Testes da tag <ide>
 
+use chrono::prelude::*;
 use std::convert::TryFrom;
 use std::fs::File;
-use chrono::prelude::*;
 
 use crate::*;
 
 #[test]
 fn nfe() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let ide = Nfe::try_from(f)?.ide;
 
     assert_eq!(43, ide.codigo_uf);
@@ -26,9 +24,7 @@ fn nfe() -> Result<(), String> {
 
 #[test]
 fn chave_acesso() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let chave = Nfe::try_from(f)?.ide.chave;
 
     assert_eq!(1030, chave.codigo);
@@ -39,30 +35,31 @@ fn chave_acesso() -> Result<(), String> {
 
 #[test]
 fn emissao() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let emissao = Nfe::try_from(f)?.ide.emissao;
 
     assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), emissao.horario);
     assert_eq!(TipoEmissao::Normal, emissao.tipo);
     assert_eq!(FinalidadeEmissao::Normal, emissao.finalidade);
-    assert_eq!(TipoProcessoEmissao::ViaAplicativoDoContribuinte, emissao.processo);
+    assert_eq!(
+        TipoProcessoEmissao::ViaAplicativoDoContribuinte,
+        emissao.processo
+    );
     assert_eq!("fernando", emissao.versao_processo);
 
     Ok(())
 }
 
-
 #[test]
 fn operacao() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let operacao = Nfe::try_from(f)?.ide.operacao;
 
     assert_eq!("Venda de producao do estabelecimento", operacao.natureza);
-    assert_eq!(Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)), operacao.horario);
+    assert_eq!(
+        Some(Utc.ymd(2018, 09, 25).and_hms(18, 14, 0)),
+        operacao.horario
+    );
     assert_eq!(TipoOperacao::Saida, operacao.tipo);
     assert_eq!(DestinoOperacao::Interestadual, operacao.destino);
     assert_eq!(TipoConsumidor::Normal, operacao.consumidor);

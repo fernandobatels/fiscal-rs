@@ -1,17 +1,17 @@
 //! Modelo 55 da NF-e
 
-use std::fs::File;
-use std::str::FromStr;
-use std::convert::{TryFrom, TryInto};
-pub use crate::base::versao::*;
-pub use crate::base::ide::*;
+pub use crate::base::emissao::*;
 pub use crate::base::emit::*;
 pub use crate::base::endereco::*;
-pub use crate::base::operacao::*;
-pub use crate::base::emissao::*;
-pub use crate::base::produto::*;
+pub use crate::base::ide::*;
 pub use crate::base::item::*;
+pub use crate::base::operacao::*;
+pub use crate::base::produto::*;
+pub use crate::base::versao::*;
 use crate::base::Nfe as NfeBase;
+use std::convert::{TryFrom, TryInto};
+use std::fs::File;
+use std::str::FromStr;
 
 mod dest;
 pub use dest::*;
@@ -32,12 +32,17 @@ impl TryFrom<NfeBase> for Nfe {
     type Error = String;
 
     fn try_from(doc: NfeBase) -> Result<Self, Self::Error> {
-
         if doc.ide.modelo != ModeloDocumentoFiscal::Nfe {
-            return Err(format!("Modelo do documento não suportado: {:?}", doc.ide.modelo));
+            return Err(format!(
+                "Modelo do documento não suportado: {:?}",
+                doc.ide.modelo
+            ));
         }
 
-        let dest = doc.dest.ok_or("Destinatário não informado no documento")?.try_into()?;
+        let dest = doc
+            .dest
+            .ok_or("Destinatário não informado no documento")?
+            .try_into()?;
 
         Ok(Self {
             versao: doc.versao,
@@ -45,7 +50,7 @@ impl TryFrom<NfeBase> for Nfe {
             ide: doc.ide,
             emit: doc.emit,
             dest: dest,
-            itens: doc.itens
+            itens: doc.itens,
         })
     }
 }

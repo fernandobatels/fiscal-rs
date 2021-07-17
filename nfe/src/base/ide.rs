@@ -1,9 +1,9 @@
 //! Identificação da NF-e
 
-use std::str::FromStr;
-use parsercher::dom::*;
-use super::operacao::*;
 use super::emissao::*;
+use super::operacao::*;
+use parsercher::dom::*;
+use std::str::FromStr;
 
 /// Identificação da NF-e
 pub struct Identificacao {
@@ -16,18 +16,16 @@ pub struct Identificacao {
     pub operacao: Operacao,
     pub codigo_municipio: u32,
     pub formato_danfe: FormatoImpressaoDanfe,
-    pub ambiente: TipoAmbiente
+    pub ambiente: TipoAmbiente,
 }
 
 impl Identificacao {
     /// Parse da seção <ide>
     pub fn parse(xml: &Dom) -> Result<Identificacao, String> {
-
         let mut t_ide = Dom::new(DomType::Tag);
         t_ide.set_tag(Tag::new("ide"));
 
-        let ide = parsercher::search_dom(&xml, &t_ide)
-            .ok_or("Tag <ide> não encontrada")?;
+        let ide = parsercher::search_dom(&xml, &t_ide).ok_or("Tag <ide> não encontrada")?;
 
         let codigo_uf = parsercher::search_text_from_tag_children(&ide, &Tag::new("cUF"))
             .ok_or("Tag <cUF> não encontrada na <ide>")?[0]
@@ -40,14 +38,15 @@ impl Identificacao {
                 .parse::<u32>()
                 .map_err(|e| e.to_string())?;
 
-            let digito_verificador = parsercher::search_text_from_tag_children(&ide, &Tag::new("cDV"))
-                .ok_or("Tag <cDV> não encontrada na <ide>")?[0]
-                .parse::<u8>()
-                .map_err(|e| e.to_string())?;
+            let digito_verificador =
+                parsercher::search_text_from_tag_children(&ide, &Tag::new("cDV"))
+                    .ok_or("Tag <cDV> não encontrada na <ide>")?[0]
+                    .parse::<u8>()
+                    .map_err(|e| e.to_string())?;
 
             ComposicaoChaveAcesso {
                 codigo,
-                digito_verificador
+                digito_verificador,
             }
         };
 
@@ -92,17 +91,16 @@ impl Identificacao {
             operacao,
             codigo_municipio,
             formato_danfe,
-            ambiente
+            ambiente,
         })
     }
 }
-
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum ModeloDocumentoFiscal {
     Nfe = 55,
-    Nfce = 65
+    Nfce = 65,
 }
 
 /// Formato de impressão do DANFE
@@ -113,7 +111,7 @@ pub enum FormatoImpressaoDanfe {
     NormalPaisagem = 2,
     Simplificado = 3,
     Nfce = 4,
-    NfceMensagemEletronica = 5
+    NfceMensagemEletronica = 5,
 }
 
 /// Tipo do ambiente da NF
@@ -126,7 +124,7 @@ pub enum TipoAmbiente {
 /// Dados referentes a regeração da chave de acesso
 pub struct ComposicaoChaveAcesso {
     pub codigo: u32,
-    pub digito_verificador: u8
+    pub digito_verificador: u8,
 }
 
 impl FromStr for ModeloDocumentoFiscal {
@@ -135,7 +133,7 @@ impl FromStr for ModeloDocumentoFiscal {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "65" => ModeloDocumentoFiscal::Nfce,
-            _ => ModeloDocumentoFiscal::Nfe // 55
+            _ => ModeloDocumentoFiscal::Nfe, // 55
         })
     }
 }
@@ -150,7 +148,7 @@ impl FromStr for FormatoImpressaoDanfe {
             "3" => FormatoImpressaoDanfe::Simplificado,
             "2" => FormatoImpressaoDanfe::NormalPaisagem,
             "1" => FormatoImpressaoDanfe::NormalRetrato,
-            _ => FormatoImpressaoDanfe::SemGeracao // 0
+            _ => FormatoImpressaoDanfe::SemGeracao, // 0
         })
     }
 }
@@ -161,7 +159,7 @@ impl FromStr for TipoAmbiente {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoAmbiente::Producao,
-            _ => TipoAmbiente::Homologacao // 2
+            _ => TipoAmbiente::Homologacao, // 2
         })
     }
 }

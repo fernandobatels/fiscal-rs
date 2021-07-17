@@ -1,7 +1,7 @@
 //! Emitente da NF-e
 
-use parsercher::dom::*;
 use super::endereco::*;
+use parsercher::dom::*;
 
 /// Emitente da NF-e
 pub struct Emitente {
@@ -16,12 +16,10 @@ pub struct Emitente {
 impl Emitente {
     /// Parse da seção <emit>
     pub(crate) fn parse(xml: &Dom) -> Result<Emitente, String> {
-
         let mut t_emit = Dom::new(DomType::Tag);
         t_emit.set_tag(Tag::new("emit"));
 
-        let emit = parsercher::search_dom(&xml, &t_emit)
-            .ok_or("Tag <emit> não encontrada")?;
+        let emit = parsercher::search_dom(&xml, &t_emit).ok_or("Tag <emit> não encontrada")?;
 
         let cnpj = parsercher::search_text_from_tag_children(&emit, &Tag::new("CNPJ"))
             .ok_or("Tag <CNPJ> não encontrada na <emit>")?[0]
@@ -44,9 +42,9 @@ impl Emitente {
             .to_string();
 
         let iest = {
-            if let Some(iest) = parsercher::search_text_from_tag_children(&emit, &Tag::new("IEST")) {
-                Some(iest[0].parse::<u32>()
-                        .map_err(|e| e.to_string())?)
+            if let Some(iest) = parsercher::search_text_from_tag_children(&emit, &Tag::new("IEST"))
+            {
+                Some(iest[0].parse::<u32>().map_err(|e| e.to_string())?)
             } else {
                 None
             }
@@ -61,7 +59,7 @@ impl Emitente {
             nome_fantasia,
             ie,
             iest,
-            endereco
+            endereco,
         })
     }
 }

@@ -1,7 +1,7 @@
 //! Produtos
 
-use std::str::FromStr;
 use parsercher::dom::*;
+use std::str::FromStr;
 
 /// Produto do item da nota
 pub struct Produto {
@@ -34,18 +34,16 @@ pub struct Produto {
     /// Outras despesas acessórias
     pub valor_outros: Option<f32>,
     /// Indica se valor do bruto entra no valor total da NF-e
-    pub valor_compoe_total_nota: bool
+    pub valor_compoe_total_nota: bool,
 }
 
 impl Produto {
     /// Parse do produto do item
     pub(crate) fn parse(xml: &Dom) -> Result<Produto, String> {
-
         let mut t_prod = Dom::new(DomType::Tag);
         t_prod.set_tag(Tag::new("prod"));
 
-        let prod = parsercher::search_dom(&xml, &t_prod)
-            .ok_or("Tag <prod> não encontrada")?;
+        let prod = parsercher::search_dom(&xml, &t_prod).ok_or("Tag <prod> não encontrada")?;
 
         let codigo = parsercher::search_text_from_tag_children(&prod, &Tag::new("cProd"))
             .ok_or("Tag <cProd> não encontrada na <prod>")?[0]
@@ -57,7 +55,7 @@ impl Produto {
 
                 match gtin.to_lowercase().trim() {
                     "sem gtin" => None,
-                    _ => Some(gtin)
+                    _ => Some(gtin),
                 }
             } else {
                 None
@@ -73,7 +71,8 @@ impl Produto {
             .to_string();
 
         let fabricante_cnpj = {
-            if let Some(fa) = parsercher::search_text_from_tag_children(&prod, &Tag::new("CNPJFab")) {
+            if let Some(fa) = parsercher::search_text_from_tag_children(&prod, &Tag::new("CNPJFab"))
+            {
                 Some(fa[0].to_string())
             } else {
                 None
@@ -102,9 +101,9 @@ impl Produto {
             .map_err(|e| e.to_string())?;
 
         let valor_frete = {
-            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vFrete")) {
-                Some(vl[0].parse::<f32>()
-                     .map_err(|e| e.to_string())?)
+            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vFrete"))
+            {
+                Some(vl[0].parse::<f32>().map_err(|e| e.to_string())?)
             } else {
                 None
             }
@@ -112,8 +111,7 @@ impl Produto {
 
         let valor_desconto = {
             if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vDesc")) {
-                Some(vl[0].parse::<f32>()
-                     .map_err(|e| e.to_string())?)
+                Some(vl[0].parse::<f32>().map_err(|e| e.to_string())?)
             } else {
                 None
             }
@@ -121,17 +119,16 @@ impl Produto {
 
         let valor_seguro = {
             if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vSeg")) {
-                Some(vl[0].parse::<f32>()
-                     .map_err(|e| e.to_string())?)
+                Some(vl[0].parse::<f32>().map_err(|e| e.to_string())?)
             } else {
                 None
             }
         };
 
         let valor_outros = {
-            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vOutro")) {
-                Some(vl[0].parse::<f32>()
-                     .map_err(|e| e.to_string())?)
+            if let Some(vl) = parsercher::search_text_from_tag_children(&prod, &Tag::new("vOutro"))
+            {
+                Some(vl[0].parse::<f32>().map_err(|e| e.to_string())?)
             } else {
                 None
             }
@@ -139,7 +136,8 @@ impl Produto {
 
         let valor_compoe_total_nota = {
             let ind = parsercher::search_text_from_tag_children(&prod, &Tag::new("indTot"))
-                .ok_or("Tag <indTot> não encontrada na <prod>")?[0].to_string();
+                .ok_or("Tag <indTot> não encontrada na <prod>")?[0]
+                .to_string();
 
             ind == "1"
         };
@@ -189,7 +187,6 @@ pub struct ProdutoTributacao {
 impl ProdutoTributacao {
     /// Parse do produto do item
     pub(crate) fn parse(prod: &Dom) -> Result<ProdutoTributacao, String> {
-
         let cfop = parsercher::search_text_from_tag_children(&prod, &Tag::new("CFOP"))
             .ok_or("Tag <CFOP> não encontrada na <prod>")?[0]
             .to_string();
@@ -203,7 +200,9 @@ impl ProdutoTributacao {
         };
 
         let escala_relevante = {
-            if let Some(er) = parsercher::search_text_from_tag_children(&prod, &Tag::new("indEscala")) {
+            if let Some(er) =
+                parsercher::search_text_from_tag_children(&prod, &Tag::new("indEscala"))
+            {
                 Some(er[0].parse::<EscalaRelevante>()?)
             } else {
                 None
@@ -211,7 +210,8 @@ impl ProdutoTributacao {
         };
 
         let codigo_beneficio_fiscal = {
-            if let Some(cb) = parsercher::search_text_from_tag_children(&prod, &Tag::new("cBenef")) {
+            if let Some(cb) = parsercher::search_text_from_tag_children(&prod, &Tag::new("cBenef"))
+            {
                 Some(cb[0].to_string())
             } else {
                 None
@@ -219,7 +219,8 @@ impl ProdutoTributacao {
         };
 
         let codigo_excecao_ipi = {
-            if let Some(ex) = parsercher::search_text_from_tag_children(&prod, &Tag::new("EXTIPI")) {
+            if let Some(ex) = parsercher::search_text_from_tag_children(&prod, &Tag::new("EXTIPI"))
+            {
                 Some(ex[0].to_string())
             } else {
                 None
@@ -227,12 +228,14 @@ impl ProdutoTributacao {
         };
 
         let gtin = {
-            if let Some(ean) = parsercher::search_text_from_tag_children(&prod, &Tag::new("cEANTrib")) {
+            if let Some(ean) =
+                parsercher::search_text_from_tag_children(&prod, &Tag::new("cEANTrib"))
+            {
                 let gtin = ean[0].to_string();
 
                 match gtin.to_lowercase().trim() {
                     "sem gtin" => None,
-                    _ => Some(gtin)
+                    _ => Some(gtin),
                 }
             } else {
                 None
@@ -271,7 +274,7 @@ impl ProdutoTributacao {
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum EscalaRelevante {
     Sim = 1,
-    Nao = 2
+    Nao = 2,
 }
 
 impl FromStr for EscalaRelevante {
@@ -280,7 +283,7 @@ impl FromStr for EscalaRelevante {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s.to_lowercase().trim() {
             "s" => EscalaRelevante::Nao, // S
-            _ => EscalaRelevante::Nao // N
+            _ => EscalaRelevante::Nao,   // N
         })
     }
 }

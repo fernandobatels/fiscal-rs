@@ -1,8 +1,8 @@
 //! Dados da operação da NF-e
 
-use std::str::FromStr;
-use parsercher::dom::*;
 use chrono::prelude::*;
+use parsercher::dom::*;
+use std::str::FromStr;
 
 /// Dados referentes a operação da nota
 pub struct Operacao {
@@ -12,13 +12,12 @@ pub struct Operacao {
     pub natureza: String,
     pub consumidor: TipoConsumidor,
     pub presenca: TipoPresencaComprador,
-    pub intermediador: Option<TipoIntermediador>
+    pub intermediador: Option<TipoIntermediador>,
 }
 
 impl Operacao {
     /// Parse dos campos da tag <ide> relacionados a operação
     pub fn parse(ide: &Dom) -> Result<Operacao, String> {
-
         let natureza = parsercher::search_text_from_tag_children(&ide, &Tag::new("natOp"))
             .ok_or("Tag <natOp> não encontrada na <ide>")?[0]
             .to_string();
@@ -32,9 +31,9 @@ impl Operacao {
             .parse::<DestinoOperacao>()?;
 
         let horario = {
-            if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhSaiEnt")) {
-                Some(dt[0].parse::<DateTime<Utc>>()
-                        .map_err(|e| e.to_string())?)
+            if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhSaiEnt"))
+            {
+                Some(dt[0].parse::<DateTime<Utc>>().map_err(|e| e.to_string())?)
             } else {
                 None
             }
@@ -49,7 +48,9 @@ impl Operacao {
             .parse::<TipoPresencaComprador>()?;
 
         let intermediador = {
-            if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("indIntermed")) {
+            if let Some(dt) =
+                parsercher::search_text_from_tag_children(&ide, &Tag::new("indIntermed"))
+            {
                 Some(dt[0].parse::<TipoIntermediador>()?)
             } else {
                 None
@@ -63,7 +64,7 @@ impl Operacao {
             horario,
             consumidor,
             presenca,
-            intermediador
+            intermediador,
         })
     }
 }
@@ -72,7 +73,7 @@ impl Operacao {
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum TipoOperacao {
     Entrada = 0,
-    Saida = 1
+    Saida = 1,
 }
 
 /// Destino da operação da nota
@@ -80,7 +81,7 @@ pub enum TipoOperacao {
 pub enum DestinoOperacao {
     Interna = 0,
     Interestadual = 1,
-    ComExterior = 2
+    ComExterior = 2,
 }
 
 /// Tipo do consumidor da NF-e
@@ -106,7 +107,7 @@ pub enum TipoPresencaComprador {
     /// Operação presencial, fora do estabelecimento
     PresencialForaDoEstabelecimento = 5,
     /// Operação não presencial
-    Outros = 9
+    Outros = 9,
 }
 
 /// Tipo do intermediador
@@ -124,7 +125,7 @@ impl FromStr for TipoOperacao {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoOperacao::Saida,
-            _ => TipoOperacao::Entrada // 0
+            _ => TipoOperacao::Entrada, // 0
         })
     }
 }
@@ -136,7 +137,7 @@ impl FromStr for DestinoOperacao {
         Ok(match s {
             "3" => DestinoOperacao::ComExterior,
             "2" => DestinoOperacao::Interestadual,
-            _ => DestinoOperacao::Interna // 1
+            _ => DestinoOperacao::Interna, // 1
         })
     }
 }
@@ -147,7 +148,7 @@ impl FromStr for TipoConsumidor {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "2" => TipoConsumidor::Final,
-            _ => TipoConsumidor::Normal // 1
+            _ => TipoConsumidor::Normal, // 1
         })
     }
 }
@@ -163,7 +164,7 @@ impl FromStr for TipoPresencaComprador {
             "3" => TipoPresencaComprador::ViaTeleatendimento,
             "2" => TipoPresencaComprador::ViaInternel,
             "1" => TipoPresencaComprador::Presencial,
-            _ => TipoPresencaComprador::NaoSeAplica // 0
+            _ => TipoPresencaComprador::NaoSeAplica, // 0
         })
     }
 }
@@ -174,7 +175,7 @@ impl FromStr for TipoIntermediador {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoIntermediador::EmSiteDeTerceiros,
-            _ => TipoIntermediador::SemIntermediador // 0
+            _ => TipoIntermediador::SemIntermediador, // 0
         })
     }
 }

@@ -7,13 +7,14 @@ use crate::*;
 
 #[test]
 fn base() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let dest = Nfe::try_from(f)?.dest;
 
     assert_eq!("58716523000119", dest.cnpj);
-    assert_eq!("NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL", dest.razao_social);
+    assert_eq!(
+        "NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL",
+        dest.razao_social
+    );
     assert_eq!(IndicadorContribuicaoIe::Contribuinte, dest.indicador_ie);
     assert_eq!(Some("112006603110".to_string()), dest.ie);
 
@@ -22,9 +23,7 @@ fn base() -> Result<(), String> {
 
 #[test]
 fn endereco() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let endereco = Nfe::try_from(f)?.dest.endereco;
 
     assert_eq!("Av. Teste", endereco.logradouro);

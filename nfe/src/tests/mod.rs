@@ -1,7 +1,6 @@
-
-pub mod parse;
-pub mod infnfe;
-pub mod ide;
-pub mod emit;
 pub mod dest;
+pub mod emit;
+pub mod ide;
+pub mod infnfe;
 pub mod itens;
+pub mod parse;

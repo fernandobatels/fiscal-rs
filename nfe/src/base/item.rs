@@ -1,26 +1,25 @@
 //! Detalhamento de produtos e serviços
 
-use parsercher::dom::*;
 use super::produto::*;
+use parsercher::dom::*;
 
 /// Item da nota
 pub struct Item {
     pub numero: u8,
-    pub produto: Produto
+    pub produto: Produto,
 }
 
 impl Item {
     /// Parse dos itens da nota
     pub(crate) fn parse(xml: &Dom) -> Result<Vec<Item>, String> {
-
-        let det_itens = parsercher::search_tag(&xml, &Tag::new("det"))
-            .ok_or("Nenhuma tag <det> encontrada")?;
+        let det_itens =
+            parsercher::search_tag(&xml, &Tag::new("det")).ok_or("Nenhuma tag <det> encontrada")?;
 
         let mut itens = vec![];
 
         for det in det_itens {
-
-            let numero = det.get_attr("nItem")
+            let numero = det
+                .get_attr("nItem")
                 .ok_or("Atributo 'nItem' não encontrado na tag <det>")?
                 .parse::<u8>()
                 .map_err(|e| e.to_string())?;
@@ -33,10 +32,7 @@ impl Item {
 
             let produto = Produto::parse(&det_dom)?;
 
-            itens.push(Item {
-                numero,
-                produto
-            });
+            itens.push(Item { numero, produto });
         }
 
         Ok(itens)

@@ -13,9 +13,7 @@
 pub mod base;
 pub mod modelos;
 
-pub use crate::{
-    modelos::nfe::*
-};
+pub use crate::modelos::nfe::*;
 
 #[cfg(test)]
 mod tests;

@@ -3,25 +3,25 @@
 //! Tipos e estruturas para tratamento da NF-e sem
 //! distinção dos modelos.
 
-use std::io::Read;
-use std::fs::File;
-use std::str::FromStr;
-use std::convert::TryFrom;
 use parsercher::{self, dom::*};
-pub mod versao;
-pub mod ide;
-pub mod emit;
+use std::convert::TryFrom;
+use std::fs::File;
+use std::io::Read;
+use std::str::FromStr;
 pub mod dest;
-pub mod endereco;
-pub mod operacao;
 pub mod emissao;
+pub mod emit;
+pub mod endereco;
+pub mod ide;
 pub mod item;
+pub mod operacao;
 pub mod produto;
-use versao::VersaoLayout;
-use ide::Identificacao;
-use emit::Emitente;
+pub mod versao;
 use dest::Destinatario;
+use emit::Emitente;
+use ide::Identificacao;
 use item::Item;
+use versao::VersaoLayout;
 
 /// Base da Nota Fiscal Eletrônica
 ///
@@ -39,10 +39,8 @@ pub struct Nfe {
 impl Nfe {
     /// Parse da NF-e, sem distinção dos modelos, a partir
     /// de uma string
-    pub (crate) fn parse(s: &str) -> Result<Nfe, String> {
-
-        let xml = parsercher::parse(s)
-            .map_err(|e| e.to_string())?;
+    pub(crate) fn parse(s: &str) -> Result<Nfe, String> {
+        let xml = parsercher::parse(s).map_err(|e| e.to_string())?;
 
         // Saltamos direto para a tag <infNfe> já
         // que se não houver essa tag, de nada nos
@@ -50,11 +48,13 @@ impl Nfe {
         let infnfe = &parsercher::search_tag(&xml, &Tag::new("infNFe"))
             .ok_or("Tag <infNFe> não encontrada")?[0];
 
-        let chave_acesso = infnfe.get_attr("Id")
+        let chave_acesso = infnfe
+            .get_attr("Id")
             .ok_or("Atributo 'Id' não encontrado na tag <infNFe>")?
             .replace("NFe", "");
 
-        let versao = infnfe.get_attr("versao")
+        let versao = infnfe
+            .get_attr("versao")
             .ok_or("Atributo 'versao' não encontrado na tag <infNFe>")?
             .parse::<VersaoLayout>()?;
 
@@ -72,7 +72,7 @@ impl Nfe {
             ide,
             emit,
             dest,
-            itens
+            itens,
         })
     }
 }
@@ -89,10 +89,8 @@ impl TryFrom<File> for Nfe {
     type Error = String;
 
     fn try_from(mut f: File) -> Result<Self, Self::Error> {
-
         let mut xml = String::new();
-        f.read_to_string(&mut xml)
-            .map_err(|e| e.to_string())?;
+        f.read_to_string(&mut xml).map_err(|e| e.to_string())?;
 
         xml.parse::<Nfe>()
     }

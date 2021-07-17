@@ -1,8 +1,8 @@
 //! Dados da emissão da NF-e
 
-use std::str::FromStr;
-use parsercher::dom::*;
 use chrono::prelude::*;
+use parsercher::dom::*;
+use std::str::FromStr;
 
 /// Dados referentes a emissão da nota
 pub struct Emissao {
@@ -16,7 +16,6 @@ pub struct Emissao {
 impl Emissao {
     /// Parse dos campos da tag <ide> relacionados a emissão
     pub(crate) fn parse(ide: &Dom) -> Result<Emissao, String> {
-
         let horario = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhEmi"))
             .ok_or("Tag <dhEmi> não encontrada na <ide>")?[0]
             .parse::<DateTime<Utc>>()
@@ -35,14 +34,15 @@ impl Emissao {
             .parse::<TipoProcessoEmissao>()?;
 
         let versao_processo = parsercher::search_text_from_tag_children(&ide, &Tag::new("verProc"))
-            .ok_or("Tag <verProc> não encontrada na <ide>")?[0].to_string();
+            .ok_or("Tag <verProc> não encontrada na <ide>")?[0]
+            .to_string();
 
         Ok(Emissao {
             horario,
             tipo,
             finalidade,
             processo,
-            versao_processo
+            versao_processo,
         })
     }
 }
@@ -65,7 +65,7 @@ pub enum TipoEmissao {
     /// Contingência SVC-RS (SEFAZ Virtual de Contingência do RS)
     ContigenciaSvcRs = 7,
     /// Contingência off-line da NFC-e
-    ContigenciaOfflineNfce = 9
+    ContigenciaOfflineNfce = 9,
 }
 
 /// Finalidade da emissão da nota
@@ -74,7 +74,7 @@ pub enum FinalidadeEmissao {
     Normal = 1,
     Complementar = 2,
     Ajuste = 3,
-    Devolucao = 4
+    Devolucao = 4,
 }
 
 /// Tipo do processo de emissão
@@ -102,7 +102,7 @@ impl FromStr for TipoEmissao {
             "6" => TipoEmissao::ContigenciaSvcAn,
             "7" => TipoEmissao::ContigenciaSvcRs,
             "9" => TipoEmissao::ContigenciaOfflineNfce,
-            _ => TipoEmissao::Normal // 1
+            _ => TipoEmissao::Normal, // 1
         })
     }
 }
@@ -115,7 +115,7 @@ impl FromStr for FinalidadeEmissao {
             "4" => FinalidadeEmissao::Devolucao,
             "3" => FinalidadeEmissao::Ajuste,
             "2" => FinalidadeEmissao::Complementar,
-            _ => FinalidadeEmissao::Normal // 1
+            _ => FinalidadeEmissao::Normal, // 1
         })
     }
 }
@@ -128,7 +128,7 @@ impl FromStr for TipoProcessoEmissao {
             "3" => TipoProcessoEmissao::ViaAplicativoDoFisco,
             "2" => TipoProcessoEmissao::AvulsaPeloContribuinte,
             "1" => TipoProcessoEmissao::AvulsaPeloFisco,
-            _ => TipoProcessoEmissao::ViaAplicativoDoContribuinte // 0
+            _ => TipoProcessoEmissao::ViaAplicativoDoContribuinte, // 0
         })
     }
 }

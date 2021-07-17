@@ -7,9 +7,7 @@ use crate::*;
 
 #[test]
 fn base() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let emit = Nfe::try_from(f)?.emit;
 
     assert_eq!("06929383000163", emit.cnpj);
@@ -21,12 +19,9 @@ fn base() -> Result<(), String> {
     Ok(())
 }
 
-
 #[test]
 fn endereco() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let endereco = Nfe::try_from(f)?.emit.endereco;
 
     assert_eq!("Rua dos Testes", endereco.logradouro);

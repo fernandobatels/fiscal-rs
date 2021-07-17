@@ -3,14 +3,12 @@
 use std::convert::TryFrom;
 use std::fs::File;
 
-use crate::*;
 use crate::base::Nfe as NfeBase;
+use crate::*;
 
 #[test]
 fn base() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let itens = Nfe::try_from(f)?.itens;
 
     assert_eq!(1, itens.len());
@@ -24,9 +22,7 @@ fn base() -> Result<(), String> {
 
 #[test]
 fn produto() -> Result<(), String> {
-
-    let f = File::open("xmls/nfe_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let itens = Nfe::try_from(f)?.itens;
 
     assert_eq!(1, itens.len());
@@ -62,9 +58,7 @@ fn produto() -> Result<(), String> {
 
 #[test]
 fn produtos() -> Result<(), String> {
-
-    let f = File::open("xmls/nfce_layout4.xml")
-        .map_err(|e| e.to_string())?;
+    let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
     let itens = NfeBase::try_from(f)?.itens;
 
     assert_eq!(2, itens.len());
@@ -99,7 +93,10 @@ fn produtos() -> Result<(), String> {
 
     assert_eq!("10029200332", produto.codigo);
     assert_eq!(None, produto.gtin);
-    assert_eq!("(292 - BAH0031D) -ROLAMENTO RODA DIANTEIRO SEM ABS UN", produto.descricao);
+    assert_eq!(
+        "(292 - BAH0031D) -ROLAMENTO RODA DIANTEIRO SEM ABS UN",
+        produto.descricao
+    );
     assert_eq!("84821090", produto.ncm);
     assert_eq!(None, produto.tributacao.cest);
     assert_eq!(None, produto.tributacao.escala_relevante);
