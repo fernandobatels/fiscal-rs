@@ -1,48 +1,7 @@
-//! Impostos dos itens
+//! Grupos de ICMS
 
 use parsercher::dom::*;
 use std::str::FromStr;
-
-/// Detalhamentos impostos sobre o item
-pub struct Imposto {
-    /// Valor aproximado total de tributos federais, estaduais e municipais
-    pub valor_aproximado: Option<f32>,
-    /// Informações do ICMS da Operação própria e ST
-    pub icms: Option<GrupoIcms>,
-    /// Informações do PIS
-    pub pis: Option<GrupoPis>,
-}
-
-impl Imposto {
-    /// Parse dos impostos do item
-    pub(crate) fn parse(xml: &Dom) -> Result<Imposto, String> {
-        let mut t_imposto = Dom::new(DomType::Tag);
-        t_imposto.set_tag(Tag::new("imposto"));
-
-        let imposto =
-            parsercher::search_dom(&xml, &t_imposto).ok_or("Tag <imposto> não encontrada")?;
-
-        let valor_aproximado = {
-            if let Some(vl) =
-                parsercher::search_text_from_tag_children(&imposto, &Tag::new("vTotTrib"))
-            {
-                Some(vl[0].parse::<f32>().map_err(|e| e.to_string())?)
-            } else {
-                None
-            }
-        };
-
-        let icms = GrupoIcms::parse(&imposto)?;
-
-        let pis = GrupoPis::parse(&imposto)?;
-
-        Ok(Imposto {
-            valor_aproximado,
-            icms,
-            pis,
-        })
-    }
-}
 
 /// ICMS
 #[derive(Debug, PartialEq)]
@@ -66,41 +25,6 @@ impl GrupoIcms {
         t_icms.set_tag(Tag::new("ICMS60"));
         if let Some(icms) = parsercher::search_dom(&imposto, &t_icms) {
             return Ok(Some(GrupoIcms::Icms60(GrupoIcms60::parse(&icms)?)));
-        }
-
-        Ok(None)
-    }
-}
-
-/// PIS
-#[derive(Debug, PartialEq)]
-pub enum GrupoPis {
-    /// Outras Operações
-    PisOutr(GrupoPisOutr),
-    /// Não Tributado
-    PisNt(GrupoPisNt),
-    /// Tributado pela alíquota
-    PisAliq(GrupoPisAliq),
-}
-
-impl GrupoPis {
-    /// Parse dos tipos de PIS do item
-    pub(crate) fn parse(imposto: &Dom) -> Result<Option<GrupoPis>, String> {
-        let mut t_pis = Dom::new(DomType::Tag);
-
-        t_pis.set_tag(Tag::new("PISOutr"));
-        if let Some(pis) = parsercher::search_dom(&imposto, &t_pis) {
-            return Ok(Some(GrupoPis::PisOutr(GrupoPisOutr::parse(&pis)?)));
-        }
-
-        t_pis.set_tag(Tag::new("PISNT"));
-        if let Some(pis) = parsercher::search_dom(&imposto, &t_pis) {
-            return Ok(Some(GrupoPis::PisNt(GrupoPisNt::parse(&pis)?)));
-        }
-
-        t_pis.set_tag(Tag::new("PISAliq"));
-        if let Some(pis) = parsercher::search_dom(&imposto, &t_pis) {
-            return Ok(Some(GrupoPis::PisAliq(GrupoPisAliq::parse(&pis)?)));
         }
 
         Ok(None)
@@ -207,104 +131,6 @@ impl GrupoIcmsSn202 {
             codigo_situacao,
             base_calculo,
             origem,
-        })
-    }
-}
-
-/// Grupo PIS Outr - Outras Operações
-#[derive(Debug, PartialEq)]
-pub struct GrupoPisOutr {
-    /// CST - Código de Situação Tributária do PIS
-    pub codigo_situacao: String,
-    /// Valor da base de cálculo do PIS
-    pub valor_base_calculo: f32,
-    /// Alíquota do PIS(%)
-    pub aliquota: f32,
-}
-
-impl GrupoPisOutr {
-    /// Parse do PISOutr
-    pub(crate) fn parse(pis: &Dom) -> Result<GrupoPisOutr, String> {
-        let aliquota = parsercher::search_text_from_tag_children(&pis, &Tag::new("pPIS"))
-            .ok_or("Tag <pPIS> não encontrada na <PISOutr>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        let valor_base_calculo = parsercher::search_text_from_tag_children(&pis, &Tag::new("vBC"))
-            .ok_or("Tag <vBC> não encontrada na <PISOutr>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        let codigo_situacao = parsercher::search_text_from_tag_children(&pis, &Tag::new("CST"))
-            .ok_or("Tag <CST> não encontrada na <PISOutr>")?[0]
-            .to_string();
-
-        Ok(GrupoPisOutr {
-            aliquota,
-            valor_base_calculo,
-            codigo_situacao,
-        })
-    }
-}
-
-/// Grupo PIS NT - PIS não tributado
-#[derive(Debug, PartialEq)]
-pub struct GrupoPisNt {
-    /// CST - Código de Situação Tributária do PIS
-    pub codigo_situacao: String,
-}
-
-impl GrupoPisNt {
-    /// Parse do PISNT
-    pub(crate) fn parse(pis: &Dom) -> Result<GrupoPisNt, String> {
-        let codigo_situacao = parsercher::search_text_from_tag_children(&pis, &Tag::new("CST"))
-            .ok_or("Tag <CST> não encontrada na <PISNT>")?[0]
-            .to_string();
-
-        Ok(GrupoPisNt { codigo_situacao })
-    }
-}
-
-/// Grupo PIS Aliq - Aliq Operações
-#[derive(Debug, PartialEq)]
-pub struct GrupoPisAliq {
-    /// CST - Código de Situação Tributária do PIS
-    pub codigo_situacao: String,
-    /// Valor da base de cálculo do PIS
-    pub valor_base_calculo: f32,
-    /// Alíquota do PIS(%)
-    pub aliquota: f32,
-    /// Valor do PIS
-    pub valor: f32,
-}
-
-impl GrupoPisAliq {
-    /// Parse do PISAliq
-    pub(crate) fn parse(pis: &Dom) -> Result<GrupoPisAliq, String> {
-        let valor = parsercher::search_text_from_tag_children(&pis, &Tag::new("vPIS"))
-            .ok_or("Tag <vPIS> não encontrada na <PISAliq>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        let aliquota = parsercher::search_text_from_tag_children(&pis, &Tag::new("pPIS"))
-            .ok_or("Tag <pPIS> não encontrada na <PISAliq>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        let valor_base_calculo = parsercher::search_text_from_tag_children(&pis, &Tag::new("vBC"))
-            .ok_or("Tag <vBC> não encontrada na <PISAliq>")?[0]
-            .parse::<f32>()
-            .map_err(|e| e.to_string())?;
-
-        let codigo_situacao = parsercher::search_text_from_tag_children(&pis, &Tag::new("CST"))
-            .ok_or("Tag <CST> não encontrada na <PISAliq>")?[0]
-            .to_string();
-
-        Ok(GrupoPisAliq {
-            aliquota,
-            valor_base_calculo,
-            codigo_situacao,
-            valor,
         })
     }
 }

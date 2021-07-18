@@ -1,7 +1,10 @@
 //! Identificação da NF-e
 
-use super::emissao::*;
-use super::operacao::*;
+mod emissao;
+mod operacao;
+
+pub use emissao::*;
+pub use operacao::*;
 use parsercher::dom::*;
 use std::str::FromStr;
 

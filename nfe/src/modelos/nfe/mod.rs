@@ -1,13 +1,9 @@
 //! Modelo 55 da NF-e
 
-pub use crate::base::emissao::*;
 pub use crate::base::emit::*;
 pub use crate::base::endereco::*;
 pub use crate::base::ide::*;
-pub use crate::base::imposto::*;
 pub use crate::base::item::*;
-pub use crate::base::operacao::*;
-pub use crate::base::produto::*;
 pub use crate::base::versao::*;
 use crate::base::Nfe as NfeBase;
 use std::convert::{TryFrom, TryInto};

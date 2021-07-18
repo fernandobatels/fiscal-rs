@@ -1,8 +1,11 @@
 //! Detalhamento de produtos e serviços
 
-use super::imposto::*;
-use super::produto::*;
+mod imposto;
+mod produto;
+
+pub use imposto::*;
 use parsercher::dom::*;
+pub use produto::*;
 
 /// Item da nota
 pub struct Item {
