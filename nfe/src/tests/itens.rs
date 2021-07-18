@@ -120,3 +120,64 @@ fn produtos() -> Result<(), String> {
 
     Ok(())
 }
+
+#[test]
+fn imposto() -> Result<(), String> {
+    let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
+    let itens = Nfe::try_from(f)?.itens;
+
+    assert_eq!(1, itens.len());
+
+    let imposto = &itens[0].imposto;
+
+    assert_eq!(Some(0.0), imposto.valor_aproximado);
+    assert_eq!(
+        Some(ImpostoIcms::IcmsSn202(ImpostoIcmsSn202 {
+            origem: OrigemMercadoria::Nacional,
+            aliquota: 0.0,
+            valor: 0.0,
+            valor_base_calculo: 0.0,
+            base_calculo: ModalidadeBaseCalculoIcmsSt::MargemValorAgregado,
+            codigo_situacao: "202".to_string()
+        })),
+        imposto.icms
+    );
+
+    Ok(())
+}
+
+#[test]
+fn impostos() -> Result<(), String> {
+    let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
+    let itens = NfeBase::try_from(f)?.itens;
+
+    assert_eq!(2, itens.len());
+
+    let imposto = &itens[0].imposto;
+
+    assert_eq!(Some(17.32), imposto.valor_aproximado);
+    assert_eq!(
+        Some(ImpostoIcms::Icms60(ImpostoIcms60 {
+            origem: OrigemMercadoria::Nacional,
+            aliquota: 0.0,
+            valor: 0.0,
+            valor_base_calculo: 0.0,
+        })),
+        imposto.icms
+    );
+
+    let imposto = &itens[1].imposto;
+
+    assert_eq!(Some(18.43), imposto.valor_aproximado);
+    assert_eq!(
+        Some(ImpostoIcms::Icms60(ImpostoIcms60 {
+            origem: OrigemMercadoria::Nacional,
+            aliquota: 0.0,
+            valor: 0.0,
+            valor_base_calculo: 0.0,
+        })),
+        imposto.icms
+    );
+
+    Ok(())
+}

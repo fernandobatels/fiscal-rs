@@ -3,7 +3,7 @@
 use parsercher::dom::*;
 use std::str::FromStr;
 
-/// Produto do item da nota
+/// Detalhamento do produto do item
 pub struct Produto {
     /// Código do produto
     pub codigo: String,
@@ -33,7 +33,7 @@ pub struct Produto {
     pub valor_desconto: Option<f32>,
     /// Outras despesas acessórias
     pub valor_outros: Option<f32>,
-    /// Indica se valor do bruto entra no valor total da NF-e
+    /// Indica se valor bruto entra no valor total da NF-e
     pub valor_compoe_total_nota: bool,
 }
 

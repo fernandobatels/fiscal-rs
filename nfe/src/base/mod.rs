@@ -13,6 +13,7 @@ pub mod emissao;
 pub mod emit;
 pub mod endereco;
 pub mod ide;
+pub mod imposto;
 pub mod item;
 pub mod operacao;
 pub mod produto;

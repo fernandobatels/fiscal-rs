@@ -1,5 +1,6 @@
 //! Detalhamento de produtos e serviços
 
+use super::imposto::*;
 use super::produto::*;
 use parsercher::dom::*;
 
@@ -7,6 +8,7 @@ use parsercher::dom::*;
 pub struct Item {
     pub numero: u8,
     pub produto: Produto,
+    pub imposto: Imposto,
 }
 
 impl Item {
@@ -26,13 +28,18 @@ impl Item {
 
             let mut t_det = Dom::new(DomType::Tag);
             t_det.set_tag(det);
-
             let det_dom = parsercher::search_dom(&xml, &t_det)
                 .ok_or("Tag <det> não convertida para o tipo dom")?;
 
             let produto = Produto::parse(&det_dom)?;
 
-            itens.push(Item { numero, produto });
+            let imposto = Imposto::parse(&det_dom)?;
+
+            itens.push(Item {
+                numero,
+                produto,
+                imposto,
+            });
         }
 
         Ok(itens)
