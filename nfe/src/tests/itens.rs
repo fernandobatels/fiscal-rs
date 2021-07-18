@@ -132,7 +132,7 @@ fn imposto() -> Result<(), String> {
 
     assert_eq!(Some(0.0), imposto.valor_aproximado);
     assert_eq!(
-        Some(ImpostoIcms::IcmsSn202(ImpostoIcmsSn202 {
+        Some(GrupoIcms::IcmsSn202(GrupoIcmsSn202 {
             origem: OrigemMercadoria::Nacional,
             aliquota: 0.0,
             valor: 0.0,
@@ -141,6 +141,14 @@ fn imposto() -> Result<(), String> {
             codigo_situacao: "202".to_string()
         })),
         imposto.icms
+    );
+    assert_eq!(
+        Some(GrupoPis::PisOutr(GrupoPisOutr {
+            aliquota: 0.0,
+            valor_base_calculo: 0.0,
+            codigo_situacao: "49".to_string()
+        })),
+        imposto.pis
     );
 
     Ok(())
@@ -157,7 +165,7 @@ fn impostos() -> Result<(), String> {
 
     assert_eq!(Some(17.32), imposto.valor_aproximado);
     assert_eq!(
-        Some(ImpostoIcms::Icms60(ImpostoIcms60 {
+        Some(GrupoIcms::Icms60(GrupoIcms60 {
             origem: OrigemMercadoria::Nacional,
             aliquota: 0.0,
             valor: 0.0,
@@ -165,18 +173,33 @@ fn impostos() -> Result<(), String> {
         })),
         imposto.icms
     );
+    assert_eq!(
+        Some(GrupoPis::PisNt(GrupoPisNt {
+            codigo_situacao: "04".to_string()
+        })),
+        imposto.pis
+    );
 
     let imposto = &itens[1].imposto;
 
     assert_eq!(Some(18.43), imposto.valor_aproximado);
     assert_eq!(
-        Some(ImpostoIcms::Icms60(ImpostoIcms60 {
+        Some(GrupoIcms::Icms60(GrupoIcms60 {
             origem: OrigemMercadoria::Nacional,
             aliquota: 0.0,
             valor: 0.0,
             valor_base_calculo: 0.0,
         })),
         imposto.icms
+    );
+    assert_eq!(
+        Some(GrupoPis::PisAliq(GrupoPisAliq {
+            valor: 0.89,
+            aliquota: 1.65,
+            valor_base_calculo: 53.78,
+            codigo_situacao: "01".to_string()
+        })),
+        imposto.pis
     );
 
     Ok(())
