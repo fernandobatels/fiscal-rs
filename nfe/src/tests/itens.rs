@@ -150,6 +150,14 @@ fn imposto() -> Result<(), String> {
         })),
         imposto.pis
     );
+    assert_eq!(
+        Some(GrupoCofins::CofinsOutr(GrupoCofinsOutr {
+            aliquota: 0.0,
+            valor_base_calculo: 0.0,
+            codigo_situacao: "49".to_string()
+        })),
+        imposto.cofins
+    );
 
     Ok(())
 }
@@ -179,6 +187,12 @@ fn impostos() -> Result<(), String> {
         })),
         imposto.pis
     );
+    assert_eq!(
+        Some(GrupoCofins::CofinsNt(GrupoCofinsNt {
+            codigo_situacao: "04".to_string()
+        })),
+        imposto.cofins
+    );
 
     let imposto = &itens[1].imposto;
 
@@ -200,6 +214,15 @@ fn impostos() -> Result<(), String> {
             codigo_situacao: "01".to_string()
         })),
         imposto.pis
+    );
+    assert_eq!(
+        Some(GrupoCofins::CofinsAliq(GrupoCofinsAliq {
+            valor: 4.09,
+            aliquota: 7.6,
+            valor_base_calculo: 53.78,
+            codigo_situacao: "01".to_string()
+        })),
+        imposto.cofins
     );
 
     Ok(())

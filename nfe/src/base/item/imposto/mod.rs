@@ -1,8 +1,10 @@
 //! Impostos dos itens
 
+mod cofins;
 mod icms;
 mod pis;
 
+pub use cofins::*;
 pub use icms::*;
 use parsercher::dom::*;
 pub use pis::*;
@@ -15,6 +17,8 @@ pub struct Imposto {
     pub icms: Option<GrupoIcms>,
     /// Informações do PIS
     pub pis: Option<GrupoPis>,
+    /// Informações do COFINS
+    pub cofins: Option<GrupoCofins>,
 }
 
 impl Imposto {
@@ -40,10 +44,13 @@ impl Imposto {
 
         let pis = GrupoPis::parse(&imposto)?;
 
+        let cofins = GrupoCofins::parse(&imposto)?;
+
         Ok(Imposto {
             valor_aproximado,
             icms,
             pis,
+            cofins,
         })
     }
 }
