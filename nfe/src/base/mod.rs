@@ -14,11 +14,13 @@ pub mod endereco;
 pub mod ide;
 pub mod item;
 pub mod versao;
+pub mod totais;
 use dest::Destinatario;
 use emit::Emitente;
 use ide::Identificacao;
 use item::Item;
 use versao::VersaoLayout;
+use totais::Totalizacao;
 
 /// Base da Nota Fiscal Eletrônica
 ///
@@ -31,6 +33,7 @@ pub struct Nfe {
     pub emit: Emitente,
     pub dest: Option<Destinatario>,
     pub itens: Vec<Item>,
+    pub totais: Totalizacao,
 }
 
 impl Nfe {
@@ -63,6 +66,8 @@ impl Nfe {
 
         let itens = Item::parse(&xml)?;
 
+        let totais = Totalizacao::parse(&xml)?;
+
         Ok(Nfe {
             chave_acesso,
             versao,
@@ -70,6 +75,7 @@ impl Nfe {
             emit,
             dest,
             itens,
+            totais,
         })
     }
 }
