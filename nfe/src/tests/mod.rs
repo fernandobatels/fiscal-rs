@@ -5,3 +5,4 @@ pub mod infnfe;
 pub mod itens;
 pub mod parse;
 pub mod totais;
+pub mod transporte;

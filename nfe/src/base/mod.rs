@@ -14,12 +14,14 @@ pub mod endereco;
 pub mod ide;
 pub mod item;
 pub mod totais;
+pub mod transporte;
 pub mod versao;
 use dest::Destinatario;
 use emit::Emitente;
 use ide::Identificacao;
 use item::Item;
 use totais::Totalizacao;
+use transporte::Transporte;
 use versao::VersaoLayout;
 
 /// Base da Nota Fiscal Eletrônica
@@ -34,6 +36,7 @@ pub struct Nfe {
     pub dest: Option<Destinatario>,
     pub itens: Vec<Item>,
     pub totais: Totalizacao,
+    pub transporte: Transporte,
     /// Informações complementares de interesse do contribuinte
     pub informacao_complementar: Option<String>,
 }
@@ -70,6 +73,8 @@ impl Nfe {
 
         let totais = Totalizacao::parse(&xml)?;
 
+        let transporte = Transporte::parse(&xml)?;
+
         let informacao_complementar = {
             let mut t_inf_adic = Dom::new(DomType::Tag);
             t_inf_adic.set_tag(Tag::new("infAdic"));
@@ -95,6 +100,7 @@ impl Nfe {
             dest,
             itens,
             totais,
+            transporte,
             informacao_complementar,
         })
     }

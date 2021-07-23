@@ -5,6 +5,7 @@ pub use crate::base::endereco::*;
 pub use crate::base::ide::*;
 pub use crate::base::item::*;
 pub use crate::base::totais::*;
+pub use crate::base::transporte::*;
 pub use crate::base::versao::*;
 use crate::base::Nfe as NfeBase;
 use std::convert::{TryFrom, TryInto};
@@ -25,6 +26,7 @@ pub struct Nfe {
     pub dest: Destinatario,
     pub itens: Vec<Item>,
     pub totais: Totalizacao,
+    pub transporte: Transporte,
     /// Informações complementares de interesse do contribuinte
     pub informacao_complementar: Option<String>,
 }
@@ -53,6 +55,7 @@ impl TryFrom<NfeBase> for Nfe {
             dest: dest,
             itens: doc.itens,
             totais: doc.totais,
+            transporte: doc.transporte,
             informacao_complementar: doc.informacao_complementar,
         })
     }
