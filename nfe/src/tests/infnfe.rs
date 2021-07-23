@@ -4,6 +4,7 @@ use std::convert::TryFrom;
 use std::fs::File;
 
 use crate::*;
+use crate::base::Nfe as NfeBase;
 
 #[test]
 fn nfe() -> Result<(), String> {
@@ -15,6 +16,17 @@ fn nfe() -> Result<(), String> {
         nfe.chave_acesso
     );
     assert_eq!(VersaoLayout::V4_00, nfe.versao);
+    assert_eq!(None, nfe.informacao_complementar);
+
+    Ok(())
+}
+
+#[test]
+fn informacao_cmoplementar() -> Result<(), String> {
+    let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
+    let nfe = NfeBase::try_from(f)?;
+
+    assert_eq!(Some("11899318;422-JERK DIONNY;CLIENTE RECUSOU INFORMAR CPF/CNPJ NO CUPOM".to_string()), nfe.informacao_complementar);
 
     Ok(())
 }

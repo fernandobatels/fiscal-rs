@@ -34,6 +34,8 @@ pub struct Nfe {
     pub dest: Option<Destinatario>,
     pub itens: Vec<Item>,
     pub totais: Totalizacao,
+    /// Informações complementares de interesse do contribuinte
+    pub informacao_complementar: Option<String>
 }
 
 impl Nfe {
@@ -68,6 +70,21 @@ impl Nfe {
 
         let totais = Totalizacao::parse(&xml)?;
 
+        let informacao_complementar = {
+            let mut t_inf_adic = Dom::new(DomType::Tag);
+            t_inf_adic.set_tag(Tag::new("infAdic"));
+
+            if let Some(inf_adic) = parsercher::search_dom(&xml, &t_inf_adic) {
+                if let Some(cpl) = parsercher::search_text_from_tag_children(&inf_adic, &Tag::new("infCpl")) {
+                    Some(cpl[0].to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        };
+
         Ok(Nfe {
             chave_acesso,
             versao,
@@ -76,6 +93,7 @@ impl Nfe {
             dest,
             itens,
             totais,
+            informacao_complementar
         })
     }
 }

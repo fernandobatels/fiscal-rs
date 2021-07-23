@@ -25,6 +25,8 @@ pub struct Nfe {
     pub dest: Destinatario,
     pub itens: Vec<Item>,
     pub totais: Totalizacao,
+    /// Informações complementares de interesse do contribuinte
+    pub informacao_complementar: Option<String>
 }
 
 impl TryFrom<NfeBase> for Nfe {
@@ -51,6 +53,7 @@ impl TryFrom<NfeBase> for Nfe {
             dest: dest,
             itens: doc.itens,
             totais: doc.totais,
+            informacao_complementar: doc.informacao_complementar
         })
     }
 }
