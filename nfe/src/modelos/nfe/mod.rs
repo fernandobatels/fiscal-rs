@@ -4,8 +4,8 @@ pub use crate::base::emit::*;
 pub use crate::base::endereco::*;
 pub use crate::base::ide::*;
 pub use crate::base::item::*;
-pub use crate::base::versao::*;
 pub use crate::base::totais::*;
+pub use crate::base::versao::*;
 use crate::base::Nfe as NfeBase;
 use std::convert::{TryFrom, TryInto};
 use std::fs::File;
@@ -26,7 +26,7 @@ pub struct Nfe {
     pub itens: Vec<Item>,
     pub totais: Totalizacao,
     /// Informações complementares de interesse do contribuinte
-    pub informacao_complementar: Option<String>
+    pub informacao_complementar: Option<String>,
 }
 
 impl TryFrom<NfeBase> for Nfe {
@@ -53,7 +53,7 @@ impl TryFrom<NfeBase> for Nfe {
             dest: dest,
             itens: doc.itens,
             totais: doc.totais,
-            informacao_complementar: doc.informacao_complementar
+            informacao_complementar: doc.informacao_complementar,
         })
     }
 }

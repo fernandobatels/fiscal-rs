@@ -3,8 +3,8 @@
 use std::convert::TryFrom;
 use std::fs::File;
 
-use crate::*;
 use crate::base::Nfe as NfeBase;
+use crate::*;
 
 #[test]
 fn nfe() -> Result<(), String> {
@@ -26,7 +26,10 @@ fn informacao_cmoplementar() -> Result<(), String> {
     let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
     let nfe = NfeBase::try_from(f)?;
 
-    assert_eq!(Some("11899318;422-JERK DIONNY;CLIENTE RECUSOU INFORMAR CPF/CNPJ NO CUPOM".to_string()), nfe.informacao_complementar);
+    assert_eq!(
+        Some("11899318;422-JERK DIONNY;CLIENTE RECUSOU INFORMAR CPF/CNPJ NO CUPOM".to_string()),
+        nfe.informacao_complementar
+    );
 
     Ok(())
 }

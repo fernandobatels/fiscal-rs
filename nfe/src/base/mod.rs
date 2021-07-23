@@ -13,14 +13,14 @@ pub mod emit;
 pub mod endereco;
 pub mod ide;
 pub mod item;
-pub mod versao;
 pub mod totais;
+pub mod versao;
 use dest::Destinatario;
 use emit::Emitente;
 use ide::Identificacao;
 use item::Item;
-use versao::VersaoLayout;
 use totais::Totalizacao;
+use versao::VersaoLayout;
 
 /// Base da Nota Fiscal Eletrônica
 ///
@@ -35,7 +35,7 @@ pub struct Nfe {
     pub itens: Vec<Item>,
     pub totais: Totalizacao,
     /// Informações complementares de interesse do contribuinte
-    pub informacao_complementar: Option<String>
+    pub informacao_complementar: Option<String>,
 }
 
 impl Nfe {
@@ -75,7 +75,9 @@ impl Nfe {
             t_inf_adic.set_tag(Tag::new("infAdic"));
 
             if let Some(inf_adic) = parsercher::search_dom(&xml, &t_inf_adic) {
-                if let Some(cpl) = parsercher::search_text_from_tag_children(&inf_adic, &Tag::new("infCpl")) {
+                if let Some(cpl) =
+                    parsercher::search_text_from_tag_children(&inf_adic, &Tag::new("infCpl"))
+                {
                     Some(cpl[0].to_string())
                 } else {
                     None
@@ -93,7 +95,7 @@ impl Nfe {
             dest,
             itens,
             totais,
-            informacao_complementar
+            informacao_complementar,
         })
     }
 }
