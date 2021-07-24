@@ -2,10 +2,16 @@
 
 use parsercher::dom::*;
 use std::str::FromStr;
+use serde::Deserialize;
+use serde_repr::Deserialize_repr;
+
 
 /// Transporte da nota
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(rename = "transp")]
 pub struct Transporte {
     /// Modalidade do frete
+    #[serde(rename = "modFrete")]
     pub modalidade: ModalidadeFrete,
 }
 
@@ -25,8 +31,18 @@ impl Transporte {
     }
 }
 
+impl FromStr for Transporte {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_xml_rs::from_str(s)
+            .map_err(|e| e.to_string())
+    }
+}
+
 /// Modalidade do frete
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[repr(u8)]
 pub enum ModalidadeFrete {
     /// CIF - Contratação do frete por conta do remetente
     ContratacaoPorContaRemetente = 0,
