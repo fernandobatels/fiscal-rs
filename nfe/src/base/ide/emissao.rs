@@ -95,6 +95,7 @@ impl FromStr for TipoEmissao {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
+            "1" => TipoEmissao::Normal,
             "2" => TipoEmissao::ContigenciaFsIa,
             "3" => TipoEmissao::ContingenciaScan,
             "4" => TipoEmissao::ContigenciaEpec,
@@ -102,7 +103,7 @@ impl FromStr for TipoEmissao {
             "6" => TipoEmissao::ContigenciaSvcAn,
             "7" => TipoEmissao::ContigenciaSvcRs,
             "9" => TipoEmissao::ContigenciaOfflineNfce,
-            _ => TipoEmissao::Normal, // 1
+            _ => unreachable!()
         })
     }
 }
@@ -115,7 +116,8 @@ impl FromStr for FinalidadeEmissao {
             "4" => FinalidadeEmissao::Devolucao,
             "3" => FinalidadeEmissao::Ajuste,
             "2" => FinalidadeEmissao::Complementar,
-            _ => FinalidadeEmissao::Normal, // 1
+            "1" => FinalidadeEmissao::Normal,
+            _ => unreachable!()
         })
     }
 }
@@ -128,7 +130,8 @@ impl FromStr for TipoProcessoEmissao {
             "3" => TipoProcessoEmissao::ViaAplicativoDoFisco,
             "2" => TipoProcessoEmissao::AvulsaPeloContribuinte,
             "1" => TipoProcessoEmissao::AvulsaPeloFisco,
-            _ => TipoProcessoEmissao::ViaAplicativoDoContribuinte, // 0
+            "0" => TipoProcessoEmissao::ViaAplicativoDoContribuinte,
+            _ => unreachable!()
         })
     }
 }

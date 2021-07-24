@@ -14,7 +14,7 @@ impl FromStr for VersaoLayout {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "4.00" => Ok(VersaoLayout::V4_00),
-            _ => Err(format!("Layout {} ainda não suportado", s)),
+            _ => unreachable!()
         }
     }
 }

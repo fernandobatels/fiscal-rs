@@ -136,7 +136,8 @@ impl FromStr for ModeloDocumentoFiscal {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "65" => ModeloDocumentoFiscal::Nfce,
-            _ => ModeloDocumentoFiscal::Nfe, // 55
+            "55" => ModeloDocumentoFiscal::Nfe,
+            _ => unreachable!()
         })
     }
 }
@@ -151,7 +152,8 @@ impl FromStr for FormatoImpressaoDanfe {
             "3" => FormatoImpressaoDanfe::Simplificado,
             "2" => FormatoImpressaoDanfe::NormalPaisagem,
             "1" => FormatoImpressaoDanfe::NormalRetrato,
-            _ => FormatoImpressaoDanfe::SemGeracao, // 0
+            "0" => FormatoImpressaoDanfe::SemGeracao,
+            _ => unreachable!()
         })
     }
 }
@@ -162,7 +164,8 @@ impl FromStr for TipoAmbiente {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoAmbiente::Producao,
-            _ => TipoAmbiente::Homologacao, // 2
+            "2" => TipoAmbiente::Homologacao,
+            _ => unreachable!()
         })
     }
 }

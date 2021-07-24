@@ -67,9 +67,9 @@ impl Destinatario {
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum IndicadorContribuicaoIe {
     /// Contribuinte ICMS
-    Contribuinte = 0,
+    Contribuinte = 1,
     /// Contribuinte isento de Inscrição no cadastro de Contribuintes
-    Isento = 1,
+    Isento = 2,
     /// Não Contribuinte, que pode ou não possuir Inscrição Estadual no Cadastro de Contribuintes do ICMS
     NaoContribuinte = 9,
 }
@@ -81,7 +81,8 @@ impl FromStr for IndicadorContribuicaoIe {
         Ok(match s {
             "9" => IndicadorContribuicaoIe::NaoContribuinte,
             "2" => IndicadorContribuicaoIe::Isento,
-            _ => IndicadorContribuicaoIe::Contribuinte, // 1
+            "1" => IndicadorContribuicaoIe::Contribuinte,
+            _ => unreachable!()
         })
     }
 }

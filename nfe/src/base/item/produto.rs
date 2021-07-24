@@ -282,8 +282,9 @@ impl FromStr for EscalaRelevante {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s.to_lowercase().trim() {
-            "s" => EscalaRelevante::Nao, // S
-            _ => EscalaRelevante::Nao,   // N
+            "s" => EscalaRelevante::Sim,
+            "n" => EscalaRelevante::Nao,
+            _ => unreachable!()
         })
     }
 }

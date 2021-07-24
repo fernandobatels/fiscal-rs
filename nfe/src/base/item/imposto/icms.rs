@@ -171,7 +171,8 @@ impl FromStr for OrigemMercadoria {
             "3" => OrigemMercadoria::NacionalComImportacao40a70,
             "2" => OrigemMercadoria::EstrangeiraAdquiridaMercadoInterno,
             "1" => OrigemMercadoria::Estrangeira,
-            _ => OrigemMercadoria::Nacional, // 0
+            "0" => OrigemMercadoria::Nacional,
+            _ => unreachable!()
         })
     }
 }
@@ -203,7 +204,8 @@ impl FromStr for ModalidadeBaseCalculoIcmsSt {
             "3" => ModalidadeBaseCalculoIcmsSt::ListaNeutra,
             "2" => ModalidadeBaseCalculoIcmsSt::ListaPositiva,
             "1" => ModalidadeBaseCalculoIcmsSt::ListaNegativa,
-            _ => ModalidadeBaseCalculoIcmsSt::PrecoTabelado, // 0
+            "0" => ModalidadeBaseCalculoIcmsSt::PrecoTabelado,
+            _ => unreachable!()
         })
     }
 }

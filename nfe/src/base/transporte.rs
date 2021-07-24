@@ -52,7 +52,8 @@ impl FromStr for ModalidadeFrete {
             "3" => ModalidadeFrete::TransportePorContaRemetente,
             "2" => ModalidadeFrete::ContratacaoPorContaTerceiros,
             "1" => ModalidadeFrete::ContratacaoPorContaDestinatario,
-            _ => ModalidadeFrete::ContratacaoPorContaRemetente, // 0
+            "0" => ModalidadeFrete::ContratacaoPorContaRemetente,
+            _ => unreachable!()
         })
     }
 }

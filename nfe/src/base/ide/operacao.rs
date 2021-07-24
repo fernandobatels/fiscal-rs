@@ -125,7 +125,8 @@ impl FromStr for TipoOperacao {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoOperacao::Saida,
-            _ => TipoOperacao::Entrada, // 0
+            "0" => TipoOperacao::Entrada,
+            _ => unreachable!()
         })
     }
 }
@@ -137,7 +138,8 @@ impl FromStr for DestinoOperacao {
         Ok(match s {
             "3" => DestinoOperacao::ComExterior,
             "2" => DestinoOperacao::Interestadual,
-            _ => DestinoOperacao::Interna, // 1
+            "1" => DestinoOperacao::Interna,
+            _ => unreachable!()
         })
     }
 }
@@ -147,8 +149,9 @@ impl FromStr for TipoConsumidor {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "2" => TipoConsumidor::Final,
-            _ => TipoConsumidor::Normal, // 1
+            "1" => TipoConsumidor::Final,
+            "0" => TipoConsumidor::Normal,
+            _ => unreachable!()
         })
     }
 }
@@ -164,7 +167,8 @@ impl FromStr for TipoPresencaComprador {
             "3" => TipoPresencaComprador::ViaTeleatendimento,
             "2" => TipoPresencaComprador::ViaInternel,
             "1" => TipoPresencaComprador::Presencial,
-            _ => TipoPresencaComprador::NaoSeAplica, // 0
+            "0" => TipoPresencaComprador::NaoSeAplica,
+            _ => unreachable!()
         })
     }
 }
@@ -175,7 +179,8 @@ impl FromStr for TipoIntermediador {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "1" => TipoIntermediador::EmSiteDeTerceiros,
-            _ => TipoIntermediador::SemIntermediador, // 0
+            "0" => TipoIntermediador::SemIntermediador,
+            _ => unreachable!()
         })
     }
 }
