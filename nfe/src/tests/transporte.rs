@@ -6,7 +6,7 @@ use std::fs::File;
 use crate::*;
 
 #[test]
-fn completo() -> Result<(), String> {
+fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let transporte = Nfe::try_from(f)?.transporte;
 
@@ -16,7 +16,7 @@ fn completo() -> Result<(), String> {
 }
 
 #[test]
-fn parcial() -> Result<(), String> {
+fn manual() -> Result<(), String> {
 
     let xml = "<transp><modFrete>9</modFrete></transp>";
 

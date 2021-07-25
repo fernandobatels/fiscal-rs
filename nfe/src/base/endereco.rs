@@ -1,17 +1,29 @@
 //! Endereço do emitente/destinatário da NF-e
 
 use parsercher::dom::*;
+use std::str::FromStr;
+use serde::Deserialize;
 
 /// Representação de um endereço usado na NFe
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct Endereco {
+    #[serde(rename="xLgr")]
     pub logradouro: String,
+    #[serde(rename="nro")]
     pub numero: String,
+    #[serde(rename="xCpl")]
     pub complemento: Option<String>,
+    #[serde(rename="xBairro")]
     pub bairro: String,
+    #[serde(rename="cMun")]
     pub codigo_municipio: u32,
+    #[serde(rename="xMun")]
     pub nome_municipio: String,
+    #[serde(rename="UF")]
     pub sigla_uf: String,
+    #[serde(rename="CEP")]
     pub cep: u32,
+    #[serde(rename="fone")]
     pub telefone: Option<String>,
 }
 
@@ -88,5 +100,14 @@ impl Endereco {
         } else {
             Ok(None)
         }
+    }
+}
+
+impl FromStr for Endereco {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_xml_rs::from_str(s)
+            .map_err(|e| e.to_string())
     }
 }

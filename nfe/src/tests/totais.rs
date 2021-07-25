@@ -47,7 +47,7 @@ fn produtos_com_pis_cofins() -> Result<(), String> {
 }
 
 #[test]
-fn parcial_produtos_com_pis_cofins() -> Result<(), String> {
+fn manual_produtos_com_pis_cofins() -> Result<(), String> {
 
     let xml = "<total>
             <ICMSTot>

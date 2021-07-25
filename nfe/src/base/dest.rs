@@ -3,13 +3,21 @@
 use super::endereco::*;
 use parsercher::dom::*;
 use std::str::FromStr;
+use serde::Deserialize;
+use serde_repr::Deserialize_repr;
 
-/// Destinarário base da NF-e
+/// Destinatário base da NF-e
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct Destinatario {
+    #[serde(rename = "CNPJ")]
     pub cnpj: String,
+    #[serde(rename = "xNome")]
     pub razao_social: Option<String>,
+    #[serde(rename = "enderDest")]
     pub endereco: Option<Endereco>,
+    #[serde(rename = "IE")]
     pub ie: Option<String>,
+    #[serde(rename = "indIEDest")]
     pub indicador_ie: IndicadorContribuicaoIe,
 }
 
@@ -64,7 +72,8 @@ impl Destinatario {
 }
 
 /// Indicador da IE do destinatário
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[repr(u8)]
 pub enum IndicadorContribuicaoIe {
     /// Contribuinte ICMS
     Contribuinte = 1,
@@ -84,5 +93,14 @@ impl FromStr for IndicadorContribuicaoIe {
             "1" => IndicadorContribuicaoIe::Contribuinte,
             _ => unreachable!()
         })
+    }
+}
+
+impl FromStr for Destinatario {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_xml_rs::from_str(s)
+            .map_err(|e| e.to_string())
     }
 }

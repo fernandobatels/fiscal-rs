@@ -3,9 +3,10 @@
 use crate::base::dest::Destinatario as DestinatarioBase;
 pub use crate::base::dest::IndicadorContribuicaoIe;
 pub use crate::base::endereco::Endereco;
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
+use std::str::FromStr;
 
-/// Destinarário da NF-e
+/// Destinatário da NF-e
 pub struct Destinatario {
     pub cnpj: String,
     pub razao_social: String,
@@ -33,5 +34,15 @@ impl TryFrom<DestinatarioBase> for Destinatario {
             ie: dest.ie.clone(),
             indicador_ie: dest.indicador_ie,
         })
+    }
+}
+
+impl FromStr for Destinatario {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let base = s.parse::<DestinatarioBase>()?;
+
+        base.try_into()
     }
 }
