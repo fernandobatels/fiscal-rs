@@ -22,7 +22,7 @@ fn nfe() -> Result<(), String> {
 }
 
 #[test]
-fn informacao_cmoplementar() -> Result<(), String> {
+fn informacao_complementar_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
     let nfe = NfeBase::try_from(f)?;
 

@@ -1,10 +1,12 @@
 //! Layouts suportados
 
 use std::str::FromStr;
+use serde::Deserialize;
 
 /// Versão do layout da NF-e
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize)]
 pub enum VersaoLayout {
+    #[serde(rename = "4.00")]
     V4_00 = 4,
 }
 
