@@ -21,6 +21,40 @@ fn from_instance() -> Result<(), String> {
 }
 
 #[test]
+fn manual() -> Result<(), String> {
+    let xml = "
+        <det nItem=\"1\">
+            <prod>
+                <cProd>11007</cProd>
+                <cEAN>SEM GTIN</cEAN>
+                <xProd>UM PRODUTO TESTE QUALQUER</xProd>
+                <NCM>64011000</NCM>
+                <CEST>1234567</CEST>
+                <CFOP>6101</CFOP>
+                <uCom>UN</uCom>
+                <qCom>10.0000</qCom>
+                <vUnCom>50</vUnCom>
+                <vProd>500.00</vProd>
+                <cEANTrib>SEM GTIN</cEANTrib>
+                <uTrib>UN</uTrib>
+                <qTrib>10.0000</qTrib>
+                <vUnTrib>50.0000</vUnTrib>
+                <indTot>1</indTot>
+            </prod>
+            <imposto>
+                <vTotTrib>0.00</vTotTrib>
+            </imposto>
+       </det>
+    ";
+
+    let item = xml.parse::<Item>()?;
+
+    assert_eq!(1, item.numero);
+
+    Ok(())
+}
+
+#[test]
 fn produto_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let itens = Nfe::try_from(f)?.itens;
@@ -174,13 +208,82 @@ fn produtos() -> Result<(), String> {
 }
 
 #[test]
-fn imposto() -> Result<(), String> {
+fn imposto_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let itens = Nfe::try_from(f)?.itens;
 
     assert_eq!(1, itens.len());
 
     let imposto = &itens[0].imposto;
+
+    assert_eq!(Some(0.0), imposto.valor_aproximado);
+    assert_eq!(
+        Some(GrupoIcms::IcmsSn202(GrupoIcmsSn202 {
+            origem: OrigemMercadoria::Nacional,
+            aliquota: 0.0,
+            valor: 0.0,
+            valor_base_calculo: 0.0,
+            base_calculo: ModalidadeBaseCalculoIcmsSt::MargemValorAgregado,
+            codigo_situacao: "202".to_string()
+        })),
+        imposto.icms
+    );
+    assert_eq!(
+        Some(GrupoPis::PisOutr(GrupoPisOutr {
+            aliquota: 0.0,
+            valor_base_calculo: 0.0,
+            codigo_situacao: "49".to_string()
+        })),
+        imposto.pis
+    );
+    assert_eq!(
+        Some(GrupoCofins::CofinsOutr(GrupoCofinsOutr {
+            aliquota: 0.0,
+            valor_base_calculo: 0.0,
+            codigo_situacao: "49".to_string()
+        })),
+        imposto.cofins
+    );
+
+    Ok(())
+}
+
+#[test]
+fn imposto_manual() -> Result<(), String> {
+
+    let xml = "
+        <imposto>
+            <vTotTrib>0.00</vTotTrib>
+            <ICMS>
+                <ICMSSN202>
+                    <orig>0</orig>
+                    <CSOSN>202</CSOSN>
+                    <modBCST>4</modBCST>
+                    <vBCST>0.00</vBCST>
+                    <pICMSST>0.0000</pICMSST>
+                    <vICMSST>0.00</vICMSST>
+                </ICMSSN202>
+            </ICMS>
+            <PIS>
+                <PISOutr>
+                    <CST>49</CST>
+                    <vBC>0.00</vBC>
+                    <pPIS>0.0000</pPIS>
+                    <vPIS>0.00</vPIS>
+                </PISOutr>
+            </PIS>
+            <COFINS>
+                <COFINSOutr>
+                    <CST>49</CST>
+                    <vBC>0.00</vBC>
+                    <pCOFINS>0.0000</pCOFINS>
+                    <vCOFINS>0.00</vCOFINS>
+                </COFINSOutr>
+            </COFINS>
+        </imposto>
+    ";
+
+    let imposto = xml.parse::<Imposto>()?;
 
     assert_eq!(Some(0.0), imposto.valor_aproximado);
     assert_eq!(

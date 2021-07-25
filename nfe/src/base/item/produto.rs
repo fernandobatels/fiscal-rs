@@ -6,6 +6,7 @@ use serde::{Deserialize, Deserializer};
 use serde_repr::Deserialize_repr;
 
 /// Detalhamento do produto do item
+#[derive(Debug, PartialEq)]
 pub struct Produto {
     /// Código do produto
     pub codigo: String,
@@ -165,6 +166,7 @@ impl Produto {
 }
 
 /// Dados sobre a tributação do produto
+#[derive(Debug, PartialEq)]
 pub struct ProdutoTributacao {
     /// CEST - Código Especificador da Substituição Tributária
     pub cest: Option<String>,
@@ -364,6 +366,7 @@ impl<'de> Deserialize<'de> for Produto {
             codigo: prod.codigo,
             gtin: match prod.gtin.to_lowercase().trim() {
                 "sem gtin" => None,
+                "" => None,
                 _ => Some(prod.gtin),
             },
             descricao: prod.descricao,
@@ -386,6 +389,7 @@ impl<'de> Deserialize<'de> for Produto {
                 cfop: prod.t_cfop,
                 gtin: match prod.t_gtin.to_lowercase().trim() {
                     "sem gtin" => None,
+                    "" => None,
                     _ => Some(prod.t_gtin),
                 },
                 unidade: prod.t_unidade,

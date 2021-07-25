@@ -2,13 +2,17 @@
 
 use parsercher::dom::*;
 use std::str::FromStr;
+use serde::Deserialize;
+use serde_repr::Deserialize_repr;
 
 /// ICMS
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub enum GrupoIcms {
     /// Tributação ICMS pelo Simples Nacional, CSOSN=202 ou 203
+    #[serde(rename = "ICMSSN202")]
     IcmsSn202(GrupoIcmsSn202),
     /// Tributação ICMS cobrado anteriormente por substituição tributária
+    #[serde(rename = "ICMS60")]
     Icms60(GrupoIcms60),
 }
 
@@ -32,15 +36,19 @@ impl GrupoIcms {
 }
 
 /// Grupo ICMS 60 - Tributação ICMS cobrado anteriormente por substituição tributária
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub struct GrupoIcms60 {
     /// Origem da mercadoria
+    #[serde(rename = "orig")]
     pub origem: OrigemMercadoria,
     /// Valor da base de cálculo do ICMS ST retido
+    #[serde(rename = "vBCSTRet")]
     pub valor_base_calculo: f32,
     /// Alíquota suportada pelo Consumidor Final
+    #[serde(rename = "pST")]
     pub aliquota: f32,
     /// Valor do ICMS ST retido
+    #[serde(rename = "vICMSSTRet")]
     pub valor: f32,
 }
 
@@ -77,19 +85,25 @@ impl GrupoIcms60 {
 }
 
 /// Tributação ICMS pelo Simples Nacional, CSOSN=202 ou 203
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub struct GrupoIcmsSn202 {
     /// Origem da mercadoria
+    #[serde(rename = "orig")]
     pub origem: OrigemMercadoria,
     /// Código de Situação da Operação – Simples Nacional
+    #[serde(rename = "CSOSN")]
     pub codigo_situacao: String,
     /// Modalidade de determinação da BC do ICMS ST
+    #[serde(rename = "modBCST")]
     pub base_calculo: ModalidadeBaseCalculoIcmsSt,
     /// Valor da base de cálculo
+    #[serde(rename = "vBCST")]
     pub valor_base_calculo: f32,
     /// Alíquota do imposto do ICMS ST
+    #[serde(rename = "pICMSST")]
     pub aliquota: f32,
     /// Valor do ICMS ST
+    #[serde(rename = "vICMSST")]
     pub valor: f32,
 }
 
@@ -136,7 +150,8 @@ impl GrupoIcmsSn202 {
 }
 
 /// Origem da mercadoria
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[repr(u8)]
 pub enum OrigemMercadoria {
     /// Nacional, exceto as indicadas nos códigos 3, 4, 5 e 8
     Nacional = 0,
@@ -178,7 +193,8 @@ impl FromStr for OrigemMercadoria {
 }
 
 /// Modalidade de determinação da BC do ICMS ST
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[repr(u8)]
 pub enum ModalidadeBaseCalculoIcmsSt {
     /// Preço tabelado ou máximo sugerido
     PrecoTabelado = 0,
