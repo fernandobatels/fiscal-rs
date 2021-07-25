@@ -2,6 +2,8 @@
 
 use parsercher::dom::*;
 use std::str::FromStr;
+use serde::{Deserialize, Deserializer};
+use serde_repr::Deserialize_repr;
 
 /// Detalhamento do produto do item
 pub struct Produto {
@@ -271,7 +273,8 @@ impl ProdutoTributacao {
 }
 
 /// Indicador de Produção em escala relevante
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[repr(u8)]
 pub enum EscalaRelevante {
     Sim = 1,
     Nao = 2,
@@ -285,6 +288,110 @@ impl FromStr for EscalaRelevante {
             "s" => EscalaRelevante::Sim,
             "n" => EscalaRelevante::Nao,
             _ => unreachable!()
+        })
+    }
+}
+
+impl FromStr for Produto {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_xml_rs::from_str(s)
+            .map_err(|e| e.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for Produto {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where D: Deserializer<'de>
+    {
+        // TODO: voltar a tentar usar o serde flatten
+
+        #[derive(Deserialize)]
+        struct ProdContainer {
+            #[serde(rename = "cProd")]
+            pub codigo: String,
+            #[serde(rename = "cEAN")]
+            pub gtin: String,
+            #[serde(rename = "xProd")]
+            pub descricao: String,
+            #[serde(rename = "NCM")]
+            pub ncm: String,
+            #[serde(rename = "CNPJFab")]
+            pub fabricante_cnpj: Option<String>,
+            #[serde(rename = "uCom")]
+            pub unidade: String,
+            #[serde(rename = "qCom")]
+            pub quantidade: f32,
+            #[serde(rename = "vUnCom")]
+            pub valor_unitario: f32,
+            #[serde(rename = "vProd")]
+            pub valor_bruto: f32,
+            #[serde(rename = "vFrete")]
+            pub valor_frete: Option<f32>,
+            #[serde(rename = "vDesc")]
+            pub valor_seguro: Option<f32>,
+            #[serde(rename = "vSeg")]
+            pub valor_desconto: Option<f32>,
+            #[serde(rename = "vOutro")]
+            pub valor_outros: Option<f32>,
+            #[serde(rename = "indTot")]
+            pub valor_compoe_total_nota: bool,
+
+            #[serde(rename = "CEST")]
+            pub t_cest: Option<String>,
+            #[serde(rename = "indEscala")]
+            pub t_escala_relevante: Option<EscalaRelevante>,
+            #[serde(rename = "cBenef")]
+            pub t_codigo_beneficio_fiscal: Option<String>,
+            #[serde(rename = "EXTIPI")]
+            pub t_codigo_excecao_ipi: Option<String>,
+            #[serde(rename = "CFOP")]
+            pub t_cfop: String,
+            #[serde(rename = "cEANTrib")]
+            pub t_gtin: String,
+            #[serde(rename = "uTrib")]
+            pub t_unidade: String,
+            #[serde(rename = "qTrib")]
+            pub t_quantidade: f32,
+            #[serde(rename = "vUnTrib")]
+            pub t_valor_unitario: f32,
+        }
+
+        let prod = ProdContainer::deserialize(deserializer)?;
+
+        Ok(Self {
+            codigo: prod.codigo,
+            gtin: match prod.gtin.to_lowercase().trim() {
+                "sem gtin" => None,
+                _ => Some(prod.gtin),
+            },
+            descricao: prod.descricao,
+            ncm: prod.ncm,
+            fabricante_cnpj: prod.fabricante_cnpj,
+            unidade: prod.unidade,
+            quantidade: prod.quantidade,
+            valor_unitario: prod.valor_unitario,
+            valor_bruto: prod.valor_bruto,
+            valor_frete: prod.valor_frete,
+            valor_seguro: prod.valor_seguro,
+            valor_desconto: prod.valor_desconto,
+            valor_outros: prod.valor_outros,
+            valor_compoe_total_nota: prod.valor_compoe_total_nota,
+            tributacao: ProdutoTributacao {
+                cest: prod.t_cest,
+                escala_relevante: prod.t_escala_relevante,
+                codigo_beneficio_fiscal: prod.t_codigo_beneficio_fiscal,
+                codigo_excecao_ipi: prod.t_codigo_excecao_ipi,
+                cfop: prod.t_cfop,
+                gtin: match prod.t_gtin.to_lowercase().trim() {
+                    "sem gtin" => None,
+                    _ => Some(prod.t_gtin),
+                },
+                unidade: prod.t_unidade,
+                quantidade: prod.t_quantidade,
+                valor_unitario: prod.t_valor_unitario,
+            }
         })
     }
 }

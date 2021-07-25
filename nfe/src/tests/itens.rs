@@ -7,7 +7,7 @@ use crate::base::Nfe as NfeBase;
 use crate::*;
 
 #[test]
-fn base() -> Result<(), String> {
+fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let itens = Nfe::try_from(f)?.itens;
 
@@ -21,13 +21,65 @@ fn base() -> Result<(), String> {
 }
 
 #[test]
-fn produto() -> Result<(), String> {
+fn produto_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
     let itens = Nfe::try_from(f)?.itens;
 
     assert_eq!(1, itens.len());
 
     let produto = &itens[0].produto;
+
+    assert_eq!("11007", produto.codigo);
+    assert_eq!(None, produto.gtin);
+    assert_eq!("UM PRODUTO TESTE QUALQUER", produto.descricao);
+    assert_eq!("64011000", produto.ncm);
+    assert_eq!(Some("1234567".to_string()), produto.tributacao.cest);
+    assert_eq!(None, produto.tributacao.escala_relevante);
+    assert_eq!(None, produto.fabricante_cnpj);
+    assert_eq!(None, produto.tributacao.codigo_beneficio_fiscal);
+    assert_eq!(None, produto.tributacao.codigo_excecao_ipi);
+    assert_eq!("6101", produto.tributacao.cfop);
+    assert_eq!("UN", produto.unidade);
+    assert_eq!(10.00, produto.quantidade);
+    assert_eq!(50.00, produto.valor_unitario);
+    assert_eq!(None, produto.tributacao.gtin);
+    assert_eq!("UN", produto.tributacao.unidade);
+    assert_eq!(10.00, produto.tributacao.quantidade);
+    assert_eq!(50.00, produto.tributacao.valor_unitario);
+    assert_eq!(500.00, produto.valor_bruto);
+    assert_eq!(None, produto.valor_frete);
+    assert_eq!(None, produto.valor_seguro);
+    assert_eq!(None, produto.valor_desconto);
+    assert_eq!(None, produto.valor_outros);
+    assert_eq!(true, produto.valor_compoe_total_nota);
+
+    Ok(())
+}
+
+#[test]
+fn produto_manual() -> Result<(), String> {
+
+    let xml = "
+        <prod>
+            <cProd>11007</cProd>
+            <cEAN>SEM GTIN</cEAN>
+            <xProd>UM PRODUTO TESTE QUALQUER</xProd>
+            <NCM>64011000</NCM>
+            <CEST>1234567</CEST>
+            <CFOP>6101</CFOP>
+            <uCom>UN</uCom>
+            <qCom>10.0000</qCom>
+            <vUnCom>50</vUnCom>
+            <vProd>500.00</vProd>
+            <cEANTrib>SEM GTIN</cEANTrib>
+            <uTrib>UN</uTrib>
+            <qTrib>10.0000</qTrib>
+            <vUnTrib>50.0000</vUnTrib>
+            <indTot>1</indTot>
+        </prod>
+    ";
+
+    let produto = xml.parse::<Produto>()?;
 
     assert_eq!("11007", produto.codigo);
     assert_eq!(None, produto.gtin);
