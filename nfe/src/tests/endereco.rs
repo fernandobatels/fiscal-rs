@@ -4,7 +4,6 @@ use crate::*;
 
 #[test]
 fn emitente() -> Result<(), String> {
-
     let xml = "<enderEmit>
         <xLgr>Rua dos Testes</xLgr>
         <nro>1020</nro>
@@ -35,7 +34,6 @@ fn emitente() -> Result<(), String> {
 
 #[test]
 fn destinatario() -> Result<(), String> {
-
     let xml = "<enderDest>
         <xLgr>Av. Teste</xLgr>
         <nro>2040</nro>

@@ -6,8 +6,8 @@ pub use crate::base::ide::*;
 pub use crate::base::item::*;
 pub use crate::base::totais::*;
 pub use crate::base::transporte::*;
-pub use crate::base::versao::*;
 use crate::base::Nfe as NfeBase;
+pub use crate::base::VersaoLayout;
 use std::convert::{TryFrom, TryInto};
 use std::fs::File;
 use std::str::FromStr;
@@ -52,7 +52,7 @@ impl TryFrom<NfeBase> for Nfe {
             chave_acesso: doc.chave_acesso,
             ide: doc.ide,
             emit: doc.emit,
-            dest: dest,
+            dest,
             itens: doc.itens,
             totais: doc.totais,
             transporte: doc.transporte,

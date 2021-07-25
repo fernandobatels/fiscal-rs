@@ -30,7 +30,6 @@ fn from_instance() -> Result<(), String> {
 
 #[test]
 fn manual() -> Result<(), String> {
-
     let xml = "
         <emit>
             <CNPJ>06929383000163</CNPJ>
@@ -75,7 +74,6 @@ fn manual() -> Result<(), String> {
 
 #[test]
 fn endereco_manual() -> Result<(), String> {
-
     let xml = "<enderEmit>
         <xLgr>Rua dos Testes</xLgr>
         <nro>1020</nro>

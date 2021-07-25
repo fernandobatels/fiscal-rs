@@ -26,7 +26,6 @@ fn from_instance() -> Result<(), String> {
 
 #[test]
 fn manual() -> Result<(), String> {
-
     let ide = XML_MANUAL.parse::<Identificacao>()?;
 
     assert_eq!(43, ide.codigo_uf);
@@ -61,7 +60,6 @@ fn emissao_from_instance() -> Result<(), String> {
 
 #[test]
 fn emissao_manual() -> Result<(), String> {
-
     let emissao = XML_MANUAL.parse::<Emissao>()?;
 
     assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), emissao.horario);
@@ -97,7 +95,6 @@ fn operacao_from_instance() -> Result<(), String> {
 
 #[test]
 fn operacao_manual() -> Result<(), String> {
-
     let operacao = XML_MANUAL.parse::<Operacao>()?;
 
     assert_eq!("Venda de producao do estabelecimento", operacao.natureza);

@@ -1,10 +1,9 @@
 //! Dados da emissão da NF-e
 
 use chrono::prelude::*;
-use parsercher::dom::*;
-use std::str::FromStr;
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
+use std::str::FromStr;
 
 /// Dados referentes a emissão da nota
 #[derive(Debug, Deserialize, PartialEq)]
@@ -19,40 +18,6 @@ pub struct Emissao {
     pub processo: TipoProcessoEmissao,
     #[serde(rename = "verProc")]
     pub versao_processo: String,
-}
-
-impl Emissao {
-    /// Parse dos campos da tag <ide> relacionados a emissão
-    pub(crate) fn parse(ide: &Dom) -> Result<Emissao, String> {
-        let horario = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhEmi"))
-            .ok_or("Tag <dhEmi> não encontrada na <ide>")?[0]
-            .parse::<DateTime<Utc>>()
-            .map_err(|e| e.to_string())?;
-
-        let tipo = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpEmis"))
-            .ok_or("Tag <tpEmis> não encontrada na <ide>")?[0]
-            .parse::<TipoEmissao>()?;
-
-        let finalidade = parsercher::search_text_from_tag_children(&ide, &Tag::new("finNFe"))
-            .ok_or("Tag <finNfe> não encontrada na <ide>")?[0]
-            .parse::<FinalidadeEmissao>()?;
-
-        let processo = parsercher::search_text_from_tag_children(&ide, &Tag::new("procEmi"))
-            .ok_or("Tag <procEmi> não encontrada na <ide>")?[0]
-            .parse::<TipoProcessoEmissao>()?;
-
-        let versao_processo = parsercher::search_text_from_tag_children(&ide, &Tag::new("verProc"))
-            .ok_or("Tag <verProc> não encontrada na <ide>")?[0]
-            .to_string();
-
-        Ok(Emissao {
-            horario,
-            tipo,
-            finalidade,
-            processo,
-            versao_processo,
-        })
-    }
 }
 
 /// Tipo da emissão da nota
@@ -101,57 +66,10 @@ pub enum TipoProcessoEmissao {
     ViaAplicativoDoFisco = 3,
 }
 
-impl FromStr for TipoEmissao {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "1" => TipoEmissao::Normal,
-            "2" => TipoEmissao::ContigenciaFsIa,
-            "3" => TipoEmissao::ContingenciaScan,
-            "4" => TipoEmissao::ContigenciaEpec,
-            "5" => TipoEmissao::ContigenciaFsDa,
-            "6" => TipoEmissao::ContigenciaSvcAn,
-            "7" => TipoEmissao::ContigenciaSvcRs,
-            "9" => TipoEmissao::ContigenciaOfflineNfce,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for FinalidadeEmissao {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "4" => FinalidadeEmissao::Devolucao,
-            "3" => FinalidadeEmissao::Ajuste,
-            "2" => FinalidadeEmissao::Complementar,
-            "1" => FinalidadeEmissao::Normal,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for TipoProcessoEmissao {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "3" => TipoProcessoEmissao::ViaAplicativoDoFisco,
-            "2" => TipoProcessoEmissao::AvulsaPeloContribuinte,
-            "1" => TipoProcessoEmissao::AvulsaPeloFisco,
-            "0" => TipoProcessoEmissao::ViaAplicativoDoContribuinte,
-            _ => unreachable!()
-        })
-    }
-}
-
 impl FromStr for Emissao {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s)
-            .map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
     }
 }

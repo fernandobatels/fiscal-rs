@@ -17,7 +17,6 @@ fn from_instance() -> Result<(), String> {
 
 #[test]
 fn manual() -> Result<(), String> {
-
     let xml = "<transp><modFrete>9</modFrete></transp>";
 
     let transporte = xml.parse::<Transporte>()?;

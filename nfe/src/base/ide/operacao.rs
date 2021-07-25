@@ -1,10 +1,9 @@
 //! Dados da operação da NF-e
 
 use chrono::prelude::*;
-use parsercher::dom::*;
-use std::str::FromStr;
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
+use std::str::FromStr;
 
 /// Dados referentes a operação da nota
 #[derive(Debug, Deserialize, PartialEq)]
@@ -23,60 +22,6 @@ pub struct Operacao {
     pub presenca: TipoPresencaComprador,
     #[serde(rename = "indIntermed")]
     pub intermediador: Option<TipoIntermediador>,
-}
-
-impl Operacao {
-    /// Parse dos campos da tag <ide> relacionados a operação
-    pub fn parse(ide: &Dom) -> Result<Operacao, String> {
-        let natureza = parsercher::search_text_from_tag_children(&ide, &Tag::new("natOp"))
-            .ok_or("Tag <natOp> não encontrada na <ide>")?[0]
-            .to_string();
-
-        let tipo = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpNF"))
-            .ok_or("Tag <tpNF> não encontrada na <ide>")?[0]
-            .parse::<TipoOperacao>()?;
-
-        let destino = parsercher::search_text_from_tag_children(&ide, &Tag::new("idDest"))
-            .ok_or("Tag <idDest> não encontrada na <ide>")?[0]
-            .parse::<DestinoOperacao>()?;
-
-        let horario = {
-            if let Some(dt) = parsercher::search_text_from_tag_children(&ide, &Tag::new("dhSaiEnt"))
-            {
-                Some(dt[0].parse::<DateTime<Utc>>().map_err(|e| e.to_string())?)
-            } else {
-                None
-            }
-        };
-
-        let consumidor = parsercher::search_text_from_tag_children(&ide, &Tag::new("indFinal"))
-            .ok_or("Tag <indFinal> não encontrada na <ide>")?[0]
-            .parse::<TipoConsumidor>()?;
-
-        let presenca = parsercher::search_text_from_tag_children(&ide, &Tag::new("indPres"))
-            .ok_or("Tag <indPres> não encontrada na <ide>")?[0]
-            .parse::<TipoPresencaComprador>()?;
-
-        let intermediador = {
-            if let Some(dt) =
-                parsercher::search_text_from_tag_children(&ide, &Tag::new("indIntermed"))
-            {
-                Some(dt[0].parse::<TipoIntermediador>()?)
-            } else {
-                None
-            }
-        };
-
-        Ok(Operacao {
-            natureza,
-            tipo,
-            destino,
-            horario,
-            consumidor,
-            presenca,
-            intermediador,
-        })
-    }
 }
 
 /// Tipo de operação da nota
@@ -134,77 +79,10 @@ pub enum TipoIntermediador {
     EmSiteDeTerceiros = 1,
 }
 
-impl FromStr for TipoOperacao {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "1" => TipoOperacao::Saida,
-            "0" => TipoOperacao::Entrada,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for DestinoOperacao {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "3" => DestinoOperacao::ComExterior,
-            "2" => DestinoOperacao::Interestadual,
-            "1" => DestinoOperacao::Interna,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for TipoConsumidor {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "1" => TipoConsumidor::Final,
-            "0" => TipoConsumidor::Normal,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for TipoPresencaComprador {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "9" => TipoPresencaComprador::Outros,
-            "5" => TipoPresencaComprador::PresencialForaDoEstabelecimento,
-            "4" => TipoPresencaComprador::NfceEmDomicilio,
-            "3" => TipoPresencaComprador::ViaTeleatendimento,
-            "2" => TipoPresencaComprador::ViaInternel,
-            "1" => TipoPresencaComprador::Presencial,
-            "0" => TipoPresencaComprador::NaoSeAplica,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for TipoIntermediador {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "1" => TipoIntermediador::EmSiteDeTerceiros,
-            "0" => TipoIntermediador::SemIntermediador,
-            _ => unreachable!()
-        })
-    }
-}
-
 impl FromStr for Operacao {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s)
-            .map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
     }
 }

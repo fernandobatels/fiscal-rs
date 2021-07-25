@@ -1,9 +1,9 @@
 pub mod dest;
 pub mod emit;
+pub mod endereco;
 pub mod ide;
 pub mod infnfe;
 pub mod itens;
 pub mod parse;
 pub mod totais;
 pub mod transporte;
-pub mod endereco;

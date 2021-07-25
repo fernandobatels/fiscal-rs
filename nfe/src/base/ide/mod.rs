@@ -1,10 +1,9 @@
 //! Identificação da NF-e
 
 use chrono::prelude::*;
-use parsercher::dom::*;
-use std::str::FromStr;
 use serde::{Deserialize, Deserializer};
 use serde_repr::Deserialize_repr;
+use std::str::FromStr;
 
 mod emissao;
 mod operacao;
@@ -25,83 +24,6 @@ pub struct Identificacao {
     pub codigo_municipio: u32,
     pub formato_danfe: FormatoImpressaoDanfe,
     pub ambiente: TipoAmbiente,
-}
-
-impl Identificacao {
-    /// Parse da seção <ide>
-    pub fn parse(xml: &Dom) -> Result<Identificacao, String> {
-        let mut t_ide = Dom::new(DomType::Tag);
-        t_ide.set_tag(Tag::new("ide"));
-
-        let ide = parsercher::search_dom(&xml, &t_ide).ok_or("Tag <ide> não encontrada")?;
-
-        let codigo_uf = parsercher::search_text_from_tag_children(&ide, &Tag::new("cUF"))
-            .ok_or("Tag <cUF> não encontrada na <ide>")?[0]
-            .parse::<u8>()
-            .map_err(|e| e.to_string())?;
-
-        let chave = {
-            let codigo = parsercher::search_text_from_tag_children(&ide, &Tag::new("cNF"))
-                .ok_or("Tag <cNF> não encontrada na <ide>")?[0]
-                .parse::<u32>()
-                .map_err(|e| e.to_string())?;
-
-            let digito_verificador =
-                parsercher::search_text_from_tag_children(&ide, &Tag::new("cDV"))
-                    .ok_or("Tag <cDV> não encontrada na <ide>")?[0]
-                    .parse::<u8>()
-                    .map_err(|e| e.to_string())?;
-
-            ComposicaoChaveAcesso {
-                codigo,
-                digito_verificador,
-            }
-        };
-
-        let serie = parsercher::search_text_from_tag_children(&ide, &Tag::new("serie"))
-            .ok_or("Tag <serie> não encontrada na <ide>")?[0]
-            .parse::<u16>()
-            .map_err(|e| e.to_string())?;
-
-        let numero = parsercher::search_text_from_tag_children(&ide, &Tag::new("nNF"))
-            .ok_or("Tag <nNF> não encontrada na <ide>")?[0]
-            .parse::<u32>()
-            .map_err(|e| e.to_string())?;
-
-        let modelo = parsercher::search_text_from_tag_children(&ide, &Tag::new("mod"))
-            .ok_or("Tag <mod> não encontrada na <ide>")?[0]
-            .parse::<ModeloDocumentoFiscal>()?;
-
-        let emissao = Emissao::parse(&ide)?;
-
-        let operacao = Operacao::parse(&ide)?;
-
-        let codigo_municipio = parsercher::search_text_from_tag_children(&ide, &Tag::new("cMunFG"))
-            .ok_or("Tag <cMunFG> não encontrada na <ide>")?[0]
-            .parse::<u32>()
-            .map_err(|e| e.to_string())?;
-
-        let formato_danfe = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpImp"))
-            .ok_or("Tag <tpImp> não encontrada na <ide>")?[0]
-            .parse::<FormatoImpressaoDanfe>()?;
-
-        let ambiente = parsercher::search_text_from_tag_children(&ide, &Tag::new("tpAmb"))
-            .ok_or("Tag <tpAmb> não encontrada na <ide>")?[0]
-            .parse::<TipoAmbiente>()?;
-
-        Ok(Identificacao {
-            codigo_uf,
-            chave,
-            serie,
-            numero,
-            modelo,
-            emissao,
-            operacao,
-            codigo_municipio,
-            formato_danfe,
-            ambiente,
-        })
-    }
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
@@ -139,58 +61,18 @@ pub struct ComposicaoChaveAcesso {
     pub digito_verificador: u8,
 }
 
-impl FromStr for ModeloDocumentoFiscal {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "65" => ModeloDocumentoFiscal::Nfce,
-            "55" => ModeloDocumentoFiscal::Nfe,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for FormatoImpressaoDanfe {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "5" => FormatoImpressaoDanfe::NfceMensagemEletronica,
-            "4" => FormatoImpressaoDanfe::Nfce,
-            "3" => FormatoImpressaoDanfe::Simplificado,
-            "2" => FormatoImpressaoDanfe::NormalPaisagem,
-            "1" => FormatoImpressaoDanfe::NormalRetrato,
-            "0" => FormatoImpressaoDanfe::SemGeracao,
-            _ => unreachable!()
-        })
-    }
-}
-
-impl FromStr for TipoAmbiente {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "1" => TipoAmbiente::Producao,
-            "2" => TipoAmbiente::Homologacao,
-            _ => unreachable!()
-        })
-    }
-}
-
 impl FromStr for Identificacao {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s)
-            .map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
     }
 }
 
 impl<'de> Deserialize<'de> for Identificacao {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         // TODO: voltar a tentar usar o serde flatten
 
@@ -272,7 +154,7 @@ impl<'de> Deserialize<'de> for Identificacao {
                 finalidade: ide.e_finalidade,
                 processo: ide.e_processo,
                 versao_processo: ide.e_versao_processo,
-            }
+            },
         })
     }
 }

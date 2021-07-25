@@ -92,7 +92,6 @@ fn produto_from_instance() -> Result<(), String> {
 
 #[test]
 fn produto_manual() -> Result<(), String> {
-
     let xml = "
         <prod>
             <cProd>11007</cProd>
@@ -250,7 +249,6 @@ fn imposto_from_instance() -> Result<(), String> {
 
 #[test]
 fn imposto_manual() -> Result<(), String> {
-
     let xml = "
         <imposto>
             <vTotTrib>0.00</vTotTrib>

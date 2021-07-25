@@ -3,7 +3,6 @@
 //! Tipos e estruturas para tratamento da NF-e sem
 //! distinção dos modelos.
 
-use parsercher::{self, dom::*};
 use serde::{Deserialize, Deserializer};
 use std::convert::TryFrom;
 use std::fs::File;
@@ -16,14 +15,12 @@ pub mod ide;
 pub mod item;
 pub mod totais;
 pub mod transporte;
-pub mod versao;
 use dest::Destinatario;
 use emit::Emitente;
 use ide::Identificacao;
 use item::Item;
 use totais::Totalizacao;
 use transporte::Transporte;
-use versao::VersaoLayout;
 
 /// Base da Nota Fiscal Eletrônica
 ///
@@ -43,77 +40,18 @@ pub struct Nfe {
     pub informacao_complementar: Option<String>,
 }
 
-impl Nfe {
-    /// Parse da NF-e, sem distinção dos modelos, a partir
-    /// de uma string
-    pub(crate) fn parse(s: &str) -> Result<Nfe, String> {
-        let xml = parsercher::parse(s).map_err(|e| e.to_string())?;
-
-        // Saltamos direto para a tag <infNfe> já
-        // que se não houver essa tag, de nada nos
-        // adiantará a <NFe> ou <?xml>
-        let infnfe = &parsercher::search_tag(&xml, &Tag::new("infNFe"))
-            .ok_or("Tag <infNFe> não encontrada")?[0];
-
-        let chave_acesso = infnfe
-            .get_attr("Id")
-            .ok_or("Atributo 'Id' não encontrado na tag <infNFe>")?
-            .replace("NFe", "");
-
-        let versao = infnfe
-            .get_attr("versao")
-            .ok_or("Atributo 'versao' não encontrado na tag <infNFe>")?
-            .parse::<VersaoLayout>()?;
-
-        let ide = Identificacao::parse(&xml)?;
-
-        let emit = Emitente::parse(&xml)?;
-
-        let dest = Destinatario::parse(&xml)?;
-
-        let itens = Item::parse(&xml)?;
-
-        let totais = Totalizacao::parse(&xml)?;
-
-        let transporte = Transporte::parse(&xml)?;
-
-        let informacao_complementar = {
-            let mut t_inf_adic = Dom::new(DomType::Tag);
-            t_inf_adic.set_tag(Tag::new("infAdic"));
-
-            if let Some(inf_adic) = parsercher::search_dom(&xml, &t_inf_adic) {
-                if let Some(cpl) =
-                    parsercher::search_text_from_tag_children(&inf_adic, &Tag::new("infCpl"))
-                {
-                    Some(cpl[0].to_string())
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        };
-
-        Ok(Nfe {
-            chave_acesso,
-            versao,
-            ide,
-            emit,
-            dest,
-            itens,
-            totais,
-            transporte,
-            informacao_complementar,
-        })
-    }
+/// Versão do layout da NF-e
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize)]
+pub enum VersaoLayout {
+    #[serde(rename = "4.00")]
+    V4_00 = 4,
 }
 
 impl FromStr for Nfe {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s)
-            .map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
     }
 }
 
@@ -128,16 +66,16 @@ impl TryFrom<File> for Nfe {
     }
 }
 
-
 impl<'de> Deserialize<'de> for Nfe {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
         #[serde(rename = "NFe")]
         struct NfeRoot {
             #[serde(rename = "infNFe")]
-            pub inf: NfeHelper
+            pub inf: NfeHelper,
         }
 
         #[derive(Deserialize)]
@@ -181,7 +119,7 @@ impl<'de> Deserialize<'de> for Nfe {
             transporte: nfe.inf.transporte,
             informacao_complementar: match nfe.inf.add {
                 Some(add) => add.informacao_complementar,
-                None => None
+                None => None,
             },
         })
     }

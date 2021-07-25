@@ -48,7 +48,6 @@ fn produtos_com_pis_cofins() -> Result<(), String> {
 
 #[test]
 fn manual_produtos_com_pis_cofins() -> Result<(), String> {
-
     let xml = "<total>
             <ICMSTot>
                 <vBC>0.00</vBC>

@@ -32,7 +32,6 @@ fn from_instance() -> Result<(), String> {
 
 #[test]
 fn manual() -> Result<(), String> {
-
     let xml = "
         <dest>
             <CNPJ>58716523000119</CNPJ>
