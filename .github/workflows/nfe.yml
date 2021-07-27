@@ -1,4 +1,4 @@
-name: Rust
+name: nfe
 
 on:
   push:
@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - run: cd nfe
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
