@@ -10,14 +10,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  build_and_test:
     runs-on: ubuntu-latest
-
     steps:
-    - run: cd nfe
-    - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v2
+      - working-directory: ./app
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cargo build --release --all-features
