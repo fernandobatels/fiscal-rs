@@ -14,8 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - working-directory: ./app
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-      - run: cargo build --release --all-features
+          toolchain: stable     
+      - run: cargo test --release --all-features --manifest-path nfe/Cargo.toml
