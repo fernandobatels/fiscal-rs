@@ -9,7 +9,7 @@ use crate::*;
 #[test]
 fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let ide = Nfe::try_from(f)?.ide;
+    let ide = Nfe::try_from(f).map_err(|e| e.to_string())?.ide;
 
     assert_eq!(43, ide.codigo_uf);
     assert_eq!(4307609, ide.codigo_municipio);
@@ -25,7 +25,7 @@ fn from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn manual() -> Result<(), String> {
+fn manual() -> Result<(), Error> {
     let ide = XML_MANUAL.parse::<Identificacao>()?;
 
     assert_eq!(43, ide.codigo_uf);
@@ -44,7 +44,7 @@ fn manual() -> Result<(), String> {
 #[test]
 fn emissao_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let emissao = Nfe::try_from(f)?.ide.emissao;
+    let emissao = Nfe::try_from(f).map_err(|e| e.to_string())?.ide.emissao;
 
     assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), emissao.horario);
     assert_eq!(TipoEmissao::Normal, emissao.tipo);
@@ -59,7 +59,7 @@ fn emissao_from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn emissao_manual() -> Result<(), String> {
+fn emissao_manual() -> Result<(), Error> {
     let emissao = XML_MANUAL.parse::<Emissao>()?;
 
     assert_eq!(Utc.ymd(2018, 09, 25).and_hms(3, 0, 0), emissao.horario);
@@ -77,7 +77,7 @@ fn emissao_manual() -> Result<(), String> {
 #[test]
 fn operacao_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let operacao = Nfe::try_from(f)?.ide.operacao;
+    let operacao = Nfe::try_from(f).map_err(|e| e.to_string())?.ide.operacao;
 
     assert_eq!("Venda de producao do estabelecimento", operacao.natureza);
     assert_eq!(
@@ -94,7 +94,7 @@ fn operacao_from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn operacao_manual() -> Result<(), String> {
+fn operacao_manual() -> Result<(), Error> {
     let operacao = XML_MANUAL.parse::<Operacao>()?;
 
     assert_eq!("Venda de producao do estabelecimento", operacao.natureza);

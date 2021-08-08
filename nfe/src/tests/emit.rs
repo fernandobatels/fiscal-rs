@@ -8,7 +8,7 @@ use crate::*;
 #[test]
 fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let emit = Nfe::try_from(f)?.emit;
+    let emit = Nfe::try_from(f).map_err(|e| e.to_string())?.emit;
 
     assert_eq!("06929383000163", emit.cnpj);
     assert_eq!("UMA RAZAO SOCIAL DE TESTE QUALQUER", emit.razao_social);
@@ -29,7 +29,7 @@ fn from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn manual() -> Result<(), String> {
+fn manual() -> Result<(), Error> {
     let xml = "
         <emit>
             <CNPJ>06929383000163</CNPJ>
@@ -68,36 +68,6 @@ fn manual() -> Result<(), String> {
     assert_eq!("RS", emit.endereco.sigla_uf);
     assert_eq!(93800000, emit.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), emit.endereco.telefone);
-
-    Ok(())
-}
-
-#[test]
-fn endereco_manual() -> Result<(), String> {
-    let xml = "<enderEmit>
-        <xLgr>Rua dos Testes</xLgr>
-        <nro>1020</nro>
-        <xCpl>0</xCpl>
-        <xBairro>Centro</xBairro>
-        <cMun>4319901</cMun>
-        <xMun>SAPIRANGA</xMun>
-        <UF>RS</UF>
-        <CEP>93800000</CEP>
-        <cPais>1058</cPais>
-        <xPais>BRASIL</xPais>
-        <fone>5190909090</fone>
-    </enderEmit>";
-
-    let endereco = xml.parse::<Endereco>()?;
-    assert_eq!("Rua dos Testes", endereco.logradouro);
-    assert_eq!("1020", endereco.numero);
-    assert_eq!(Some("0".to_string()), endereco.complemento);
-    assert_eq!("Centro", endereco.bairro);
-    assert_eq!(4319901, endereco.codigo_municipio);
-    assert_eq!("SAPIRANGA", endereco.nome_municipio);
-    assert_eq!("RS", endereco.sigla_uf);
-    assert_eq!(93800000, endereco.cep);
-    assert_eq!(Some("5190909090".to_string()), endereco.telefone);
 
     Ok(())
 }

@@ -1,6 +1,7 @@
 //! Emitente da NF-e
 
 use super::endereco::*;
+use super::Error;
 use serde::Deserialize;
 use std::str::FromStr;
 
@@ -22,9 +23,9 @@ pub struct Emitente {
 }
 
 impl FromStr for Emitente {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.into())
     }
 }

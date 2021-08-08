@@ -13,7 +13,9 @@ use std::fs::File;
 use std::str::FromStr;
 
 mod dest;
+mod error;
 pub use dest::*;
+pub use error::*;
 
 /// Nota Fiscal Eletrônica
 ///
@@ -32,19 +34,16 @@ pub struct Nfe {
 }
 
 impl TryFrom<NfeBase> for Nfe {
-    type Error = String;
+    type Error = Error;
 
     fn try_from(doc: NfeBase) -> Result<Self, Self::Error> {
         if doc.ide.modelo != ModeloDocumentoFiscal::Nfe {
-            return Err(format!(
-                "Modelo do documento não suportado: {:?}",
-                doc.ide.modelo
-            ));
+            return Err(Error::ModeloInvalido(doc.ide.modelo));
         }
 
         let dest = doc
             .dest
-            .ok_or("Destinatário não informado no documento")?
+            .ok_or_else(|| Error::DestinatarioInvalido("Não informado no documento".to_string()))?
             .try_into()?;
 
         Ok(Self {
@@ -62,7 +61,7 @@ impl TryFrom<NfeBase> for Nfe {
 }
 
 impl FromStr for Nfe {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         s.parse::<NfeBase>()?.try_into()
@@ -70,7 +69,7 @@ impl FromStr for Nfe {
 }
 
 impl TryFrom<File> for Nfe {
-    type Error = String;
+    type Error = Error;
 
     fn try_from(f: File) -> Result<Self, Self::Error> {
         NfeBase::try_from(f)?.try_into()

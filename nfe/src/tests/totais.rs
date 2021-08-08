@@ -9,7 +9,7 @@ use crate::*;
 #[test]
 fn apenas_valores_dos_produtos() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let totais = Nfe::try_from(f)?.totais;
+    let totais = Nfe::try_from(f).map_err(|e| e.to_string())?.totais;
 
     assert_eq!(0.0, totais.valor_base_calculo);
     assert_eq!(0.0, totais.valor_icms);
@@ -29,7 +29,7 @@ fn apenas_valores_dos_produtos() -> Result<(), String> {
 #[test]
 fn produtos_com_pis_cofins() -> Result<(), String> {
     let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
-    let totais = NfeBase::try_from(f)?.totais;
+    let totais = NfeBase::try_from(f).map_err(|e| e.to_string())?.totais;
 
     assert_eq!(0.0, totais.valor_base_calculo);
     assert_eq!(0.0, totais.valor_icms);
@@ -47,7 +47,7 @@ fn produtos_com_pis_cofins() -> Result<(), String> {
 }
 
 #[test]
-fn manual_produtos_com_pis_cofins() -> Result<(), String> {
+fn manual_produtos_com_pis_cofins() -> Result<(), Error> {
     let xml = "<total>
             <ICMSTot>
                 <vBC>0.00</vBC>

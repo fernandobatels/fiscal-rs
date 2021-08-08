@@ -1,5 +1,6 @@
 //! Dados da operação da NF-e
 
+use super::Error;
 use chrono::prelude::*;
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
@@ -80,9 +81,9 @@ pub enum TipoIntermediador {
 }
 
 impl FromStr for Operacao {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.into())
     }
 }

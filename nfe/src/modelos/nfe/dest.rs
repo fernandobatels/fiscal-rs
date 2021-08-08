@@ -1,5 +1,6 @@
 //! Destinarário da NF-e no modelo 55
 
+use super::Error;
 use crate::base::dest::Destinatario as DestinatarioBase;
 pub use crate::base::dest::IndicadorContribuicaoIe;
 pub use crate::base::endereco::Endereco;
@@ -16,16 +17,16 @@ pub struct Destinatario {
 }
 
 impl TryFrom<DestinatarioBase> for Destinatario {
-    type Error = String;
+    type Error = Error;
 
     fn try_from(dest: DestinatarioBase) -> Result<Self, Self::Error> {
-        let razao_social = dest
-            .razao_social
-            .ok_or("Razão social/Nome não informado no destinatário")?;
+        let razao_social = dest.razao_social.ok_or_else(|| {
+            Error::DestinatarioInvalido("Razão social/Nome não informado".to_string())
+        })?;
 
         let endereco = dest
             .endereco
-            .ok_or("Endereço não informado no destinatário")?;
+            .ok_or_else(|| Error::DestinatarioInvalido("Endereço não informado".to_string()))?;
 
         Ok(Self {
             cnpj: dest.cnpj.clone(),
@@ -38,7 +39,7 @@ impl TryFrom<DestinatarioBase> for Destinatario {
 }
 
 impl FromStr for Destinatario {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let base = s.parse::<DestinatarioBase>()?;

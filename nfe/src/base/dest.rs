@@ -1,6 +1,7 @@
 //! Destinarário da NF-e
 
 use super::endereco::*;
+use super::Error;
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
 use std::str::FromStr;
@@ -33,9 +34,9 @@ pub enum IndicadorContribuicaoIe {
 }
 
 impl FromStr for Destinatario {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.into())
     }
 }

@@ -9,7 +9,7 @@ use crate::*;
 #[test]
 fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let itens = Nfe::try_from(f)?.itens;
+    let itens = Nfe::try_from(f).map_err(|e| e.to_string())?.itens;
 
     assert_eq!(1, itens.len());
 
@@ -21,7 +21,7 @@ fn from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn manual() -> Result<(), String> {
+fn manual() -> Result<(), Error> {
     let xml = "
         <det nItem=\"1\">
             <prod>
@@ -57,7 +57,7 @@ fn manual() -> Result<(), String> {
 #[test]
 fn produto_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let itens = Nfe::try_from(f)?.itens;
+    let itens = Nfe::try_from(f).map_err(|e| e.to_string())?.itens;
 
     assert_eq!(1, itens.len());
 
@@ -91,7 +91,7 @@ fn produto_from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn produto_manual() -> Result<(), String> {
+fn produto_manual() -> Result<(), Error> {
     let xml = "
         <prod>
             <cProd>11007</cProd>
@@ -144,7 +144,7 @@ fn produto_manual() -> Result<(), String> {
 #[test]
 fn produtos() -> Result<(), String> {
     let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
-    let itens = NfeBase::try_from(f)?.itens;
+    let itens = NfeBase::try_from(f).map_err(|e| e.to_string())?.itens;
 
     assert_eq!(2, itens.len());
 
@@ -209,7 +209,7 @@ fn produtos() -> Result<(), String> {
 #[test]
 fn imposto_from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let itens = Nfe::try_from(f)?.itens;
+    let itens = Nfe::try_from(f).map_err(|e| e.to_string())?.itens;
 
     assert_eq!(1, itens.len());
 
@@ -248,7 +248,7 @@ fn imposto_from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn imposto_manual() -> Result<(), String> {
+fn imposto_manual() -> Result<(), Error> {
     let xml = "
         <imposto>
             <vTotTrib>0.00</vTotTrib>
@@ -318,7 +318,7 @@ fn imposto_manual() -> Result<(), String> {
 #[test]
 fn impostos() -> Result<(), String> {
     let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
-    let itens = NfeBase::try_from(f)?.itens;
+    let itens = NfeBase::try_from(f).map_err(|e| e.to_string())?.itens;
 
     assert_eq!(2, itens.len());
 

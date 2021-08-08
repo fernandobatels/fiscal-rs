@@ -1,5 +1,6 @@
 //! Endereço do emitente/destinatário da NF-e
 
+use super::Error;
 use serde::Deserialize;
 use std::str::FromStr;
 
@@ -27,9 +28,9 @@ pub struct Endereco {
 }
 
 impl FromStr for Endereco {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.into())
     }
 }

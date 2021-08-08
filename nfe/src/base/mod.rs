@@ -11,12 +11,14 @@ use std::str::FromStr;
 pub mod dest;
 pub mod emit;
 pub mod endereco;
+mod error;
 pub mod ide;
 pub mod item;
 pub mod totais;
 pub mod transporte;
 use dest::Destinatario;
 use emit::Emitente;
+pub use error::Error;
 use ide::Identificacao;
 use item::Item;
 use totais::Totalizacao;
@@ -48,19 +50,19 @@ pub enum VersaoLayout {
 }
 
 impl FromStr for Nfe {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.into())
     }
 }
 
 impl TryFrom<File> for Nfe {
-    type Error = String;
+    type Error = Error;
 
     fn try_from(mut f: File) -> Result<Self, Self::Error> {
         let mut xml = String::new();
-        f.read_to_string(&mut xml).map_err(|e| e.to_string())?;
+        f.read_to_string(&mut xml).map_err(|e| Error::Io(e))?;
 
         xml.parse::<Nfe>()
     }
