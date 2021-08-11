@@ -1,19 +1,12 @@
 //! Erros referentes ao modelo 55
 
-use thiserror::Error as ThisError;
+use derive_more::{Display, Error, From};
 
-#[derive(Debug, ThisError)]
+#[derive(Debug, Display, Error, From)]
 pub enum Error {
-    #[error("Modelo do documento não suportado: {0:?}")]
-    ModeloInvalido(crate::ModeloDocumentoFiscal),
-    #[error("Destinatário inválido. {0}")]
-    DestinatarioInvalido(String),
-    #[error("{0}")]
+    #[display(fmt = "Modelo do documento não suportado: {:?}", _0)]
+    ModeloInvalido(#[error(not(source))] crate::ModeloDocumentoFiscal),
+    #[display(fmt = "Destinatário inválido. {}", _0)]
+    DestinatarioInvalido(#[error(not(source))] String),
     Base(crate::base::Error),
-}
-
-impl From<crate::base::Error> for Error {
-    fn from(bs: crate::base::Error) -> Self {
-        Self::Base(bs)
-    }
 }

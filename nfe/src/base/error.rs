@@ -1,17 +1,11 @@
 //! Erros de parse, io...
 
-use thiserror::Error as ThisError;
+use derive_more::{Display, Error, From};
 
-#[derive(Debug, ThisError)]
+#[derive(Debug, Display, Error, From)]
 pub enum Error {
-    #[error("Falha na leitura do arquivo: {0}")]
+    #[display(fmt = "Falha na leitura do arquivo: {}", _0)]
     Io(std::io::Error),
-    #[error("Falha no parse: {0}")]
+    #[display(fmt = "Falha no parse: {}", _0)]
     Serde(serde_xml_rs::Error),
-}
-
-impl From<serde_xml_rs::Error> for Error {
-    fn from(se: serde_xml_rs::Error) -> Self {
-        Self::Serde(se)
-    }
 }
