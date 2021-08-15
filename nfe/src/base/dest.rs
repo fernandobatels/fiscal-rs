@@ -2,12 +2,13 @@
 
 use super::endereco::*;
 use super::Error;
-use serde::Deserialize;
-use serde_repr::Deserialize_repr;
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::str::FromStr;
 
 /// Destinatário base da NF-e
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[serde(rename = "dest")]
 pub struct Destinatario {
     #[serde(rename = "CNPJ")]
     pub cnpj: String,
@@ -22,7 +23,7 @@ pub struct Destinatario {
 }
 
 /// Indicador da IE do destinatário
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum IndicadorContribuicaoIe {
     /// Contribuinte ICMS
@@ -38,5 +39,11 @@ impl FromStr for Destinatario {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         quick_xml::de::from_str(s).map_err(|e| e.into())
+    }
+}
+
+impl ToString for Destinatario {
+    fn to_string(&self) -> String {
+        serde_xml_rs::to_string(self).expect("Falha ao serializar o destinatário")
     }
 }

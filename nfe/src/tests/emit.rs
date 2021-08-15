@@ -22,7 +22,7 @@ fn from_instance() -> Result<(), String> {
     assert_eq!(4319901, emit.endereco.codigo_municipio);
     assert_eq!("SAPIRANGA", emit.endereco.nome_municipio);
     assert_eq!("RS", emit.endereco.sigla_uf);
-    assert_eq!(93800000, emit.endereco.cep);
+    assert_eq!("93800000", emit.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), emit.endereco.telefone);
 
     Ok(())
@@ -66,7 +66,7 @@ fn manual() -> Result<(), Error> {
     assert_eq!(4319901, emit.endereco.codigo_municipio);
     assert_eq!("SAPIRANGA", emit.endereco.nome_municipio);
     assert_eq!("RS", emit.endereco.sigla_uf);
-    assert_eq!(93800000, emit.endereco.cep);
+    assert_eq!("93800000", emit.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), emit.endereco.telefone);
 
     Ok(())

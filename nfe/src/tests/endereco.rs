@@ -26,7 +26,7 @@ fn emitente() -> Result<(), Error> {
     assert_eq!(4319901, endereco.codigo_municipio);
     assert_eq!("SAPIRANGA", endereco.nome_municipio);
     assert_eq!("RS", endereco.sigla_uf);
-    assert_eq!(93800000, endereco.cep);
+    assert_eq!("93800000", endereco.cep);
     assert_eq!(Some("5190909090".to_string()), endereco.telefone);
 
     Ok(())
@@ -55,7 +55,7 @@ fn destinatario() -> Result<(), Error> {
     assert_eq!(3550308, endereco.codigo_municipio);
     assert_eq!("SAO PAULO", endereco.nome_municipio);
     assert_eq!("SP", endereco.sigla_uf);
-    assert_eq!(04207040, endereco.cep);
+    assert_eq!("04207040", endereco.cep);
     assert_eq!(Some("5190909090".to_string()), endereco.telefone);
 
     Ok(())
@@ -81,6 +81,7 @@ fn to_string() -> Result<(), Error> {
 
     let endereco = xml_original.parse::<Endereco>()?;
     let xml_novo = endereco.to_string();
+    let xml_novo = format!("<Endereco>{}</Endereco>", xml_novo);
 
     assert_eq!(xml_original, xml_novo);
 

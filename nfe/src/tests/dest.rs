@@ -24,7 +24,7 @@ fn from_instance() -> Result<(), String> {
     assert_eq!(3550308, dest.endereco.codigo_municipio);
     assert_eq!("SAO PAULO", dest.endereco.nome_municipio);
     assert_eq!("SP", dest.endereco.sigla_uf);
-    assert_eq!(04207040, dest.endereco.cep);
+    assert_eq!("04207040", dest.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), dest.endereco.telefone);
 
     Ok(())
@@ -69,8 +69,41 @@ fn manual() -> Result<(), Error> {
     assert_eq!(3550308, dest.endereco.codigo_municipio);
     assert_eq!("SAO PAULO", dest.endereco.nome_municipio);
     assert_eq!("SP", dest.endereco.sigla_uf);
-    assert_eq!(04207040, dest.endereco.cep);
+    assert_eq!("04207040", dest.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), dest.endereco.telefone);
+
+    Ok(())
+}
+
+#[test]
+fn to_string() -> Result<(), Error> {
+    let mut xml_original = "
+        <dest>
+            <CNPJ>58716523000119</CNPJ>
+            <xNome>HOMOLOGACAO</xNome>
+            <enderDest>
+                <xLgr>Av.Teste</xLgr>
+                <nro>2040</nro>
+                <xBairro>Centro</xBairro>
+                <cMun>3550308</cMun>
+                <xMun>Guarulhos</xMun>
+                <UF>SP</UF>
+                <CEP>04207040</CEP>
+                <cPais>1058</cPais>
+                <xPais>BRASIL</xPais>
+                <fone>5190909090</fone>
+            </enderDest>
+            <IE>112006603110</IE>
+            <indIEDest>1</indIEDest>
+        </dest>
+    "
+    .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let destinatario = xml_original.parse::<Destinatario>()?;
+    let xml_novo = destinatario.to_string();
+
+    assert_eq!(xml_original, xml_novo);
 
     Ok(())
 }
