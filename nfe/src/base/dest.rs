@@ -13,7 +13,9 @@ pub struct Destinatario {
     #[serde(rename = "CNPJ")]
     pub cnpj: String,
     #[serde(rename = "xNome")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub razao_social: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "enderDest")]
     pub endereco: Option<Endereco>,
     #[serde(rename = "IE")]
