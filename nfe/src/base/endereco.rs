@@ -1,11 +1,11 @@
 //! Endereço do emitente/destinatário da NF-e
 
 use super::Error;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Representação de um endereço usado na NFe
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Serialize)]
 pub struct Endereco {
     #[serde(rename = "xLgr")]
     pub logradouro: String,
@@ -23,6 +23,10 @@ pub struct Endereco {
     pub sigla_uf: String,
     #[serde(rename = "CEP")]
     pub cep: u32,
+    #[serde(rename = "cPais")]
+    pub codigo_pais: u32,
+    #[serde(rename = "xPais")]
+    pub nome_pais: String,
     #[serde(rename = "fone")]
     pub telefone: Option<String>,
 }
@@ -32,5 +36,11 @@ impl FromStr for Endereco {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         quick_xml::de::from_str(s).map_err(|e| e.into())
+    }
+}
+
+impl ToString for Endereco {
+    fn to_string(&self) -> String {
+        serde_xml_rs::to_string(self).expect("Falha ao serializar o endereço")
     }
 }
