@@ -8,7 +8,7 @@ use crate::*;
 #[test]
 fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let transporte = Nfe::try_from(f)?.transporte;
+    let transporte = Nfe::try_from(f).map_err(|e| e.to_string())?.transporte;
 
     assert_eq!(ModalidadeFrete::SemTransporte, transporte.modalidade);
 
@@ -16,7 +16,7 @@ fn from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn manual() -> Result<(), String> {
+fn manual() -> Result<(), Error> {
     let xml = "<transp><modFrete>9</modFrete></transp>";
 
     let transporte = xml.parse::<Transporte>()?;

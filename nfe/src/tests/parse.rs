@@ -15,9 +15,9 @@ fn nfe_from_str() -> Result<(), String> {
     let mut xml = String::new();
     f.read_to_string(&mut xml).map_err(|e| e.to_string())?;
 
-    Nfe::from_str(&xml)?;
+    Nfe::from_str(&xml).map_err(|e| e.to_string())?;
 
-    xml.parse::<Nfe>()?;
+    xml.parse::<Nfe>().map_err(|e| e.to_string())?;
 
     Ok(())
 }
@@ -26,7 +26,7 @@ fn nfe_from_str() -> Result<(), String> {
 fn nfe_from_read() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
 
-    Nfe::try_from(f)?;
+    Nfe::try_from(f).map_err(|e| e.to_string())?;
 
     Ok(())
 }
@@ -38,9 +38,9 @@ fn nfce_from_str() -> Result<(), String> {
     let mut xml = String::new();
     f.read_to_string(&mut xml).map_err(|e| e.to_string())?;
 
-    NfeBase::from_str(&xml)?;
+    NfeBase::from_str(&xml).map_err(|e| e.to_string())?;
 
-    xml.parse::<NfeBase>()?;
+    xml.parse::<NfeBase>().map_err(|e| e.to_string())?;
 
     Ok(())
 }
@@ -49,7 +49,7 @@ fn nfce_from_str() -> Result<(), String> {
 fn nfce_from_read() -> Result<(), String> {
     let f = File::open("xmls/nfce_layout4.xml").map_err(|e| e.to_string())?;
 
-    NfeBase::try_from(f)?;
+    NfeBase::try_from(f).map_err(|e| e.to_string())?;
 
     Ok(())
 }

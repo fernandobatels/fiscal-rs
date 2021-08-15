@@ -1,5 +1,6 @@
 //! Detalhamento de produtos e serviços
 
+use super::Error;
 use serde::Deserialize;
 use std::str::FromStr;
 
@@ -22,9 +23,9 @@ pub struct Item {
 }
 
 impl FromStr for Item {
-    type Err = String;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.to_string())
+        serde_xml_rs::from_str(s).map_err(|e| e.into())
     }
 }

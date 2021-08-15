@@ -8,7 +8,7 @@ use crate::*;
 #[test]
 fn from_instance() -> Result<(), String> {
     let f = File::open("xmls/nfe_layout4.xml").map_err(|e| e.to_string())?;
-    let dest = Nfe::try_from(f)?.dest;
+    let dest = Nfe::try_from(f).map_err(|e| e.to_string())?.dest;
 
     assert_eq!("58716523000119", dest.cnpj);
     assert_eq!(
@@ -31,7 +31,7 @@ fn from_instance() -> Result<(), String> {
 }
 
 #[test]
-fn manual() -> Result<(), String> {
+fn manual() -> Result<(), Error> {
     let xml = "
         <dest>
             <CNPJ>58716523000119</CNPJ>
