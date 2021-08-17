@@ -1,12 +1,12 @@
 //! Informações sobre o transporte da nota
 
 use super::Error;
-use serde::Deserialize;
-use serde_repr::Deserialize_repr;
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::str::FromStr;
 
 /// Transporte da nota
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename = "transp")]
 pub struct Transporte {
     /// Modalidade do frete
@@ -22,8 +22,14 @@ impl FromStr for Transporte {
     }
 }
 
+impl ToString for Transporte {
+    fn to_string(&self) -> String {
+        serde_xml_rs::to_string(self).expect("Falha ao serializar o transporte")
+    }
+}
+
 /// Modalidade do frete
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum ModalidadeFrete {
     /// CIF - Contratação do frete por conta do remetente

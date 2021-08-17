@@ -25,3 +25,17 @@ fn manual() -> Result<(), Error> {
 
     Ok(())
 }
+
+#[test]
+fn to_string() -> Result<(), Error> {
+
+    let mut xml_original = "<transp><modFrete>9</modFrete></transp>".to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let transporte = xml_original.parse::<Transporte>()?;
+    let xml_novo = transporte.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}
