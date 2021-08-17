@@ -94,7 +94,7 @@ fn to_string() -> Result<(), Error> {
             </enderEmit>
         </emit>
     "
-        .to_string();
+    .to_string();
     xml_original.retain(|c| c != '\n' && c != ' ');
 
     let emitente = xml_original.parse::<Emitente>()?;

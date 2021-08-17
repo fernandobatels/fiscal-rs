@@ -28,7 +28,6 @@ fn manual() -> Result<(), Error> {
 
 #[test]
 fn to_string() -> Result<(), Error> {
-
     let mut xml_original = "<transp><modFrete>9</modFrete></transp>".to_string();
     xml_original.retain(|c| c != '\n' && c != ' ');
 
