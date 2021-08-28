@@ -380,3 +380,33 @@ fn impostos() -> Result<(), String> {
 
     Ok(())
 }
+
+#[test]
+fn produto_to_string() -> Result<(), Error> {
+    let mut xml_original = "<prod>
+        <cProd>11007</cProd>
+        <cEAN>SEM GTIN</cEAN>
+        <xProd>UM PRODUTO TESTE QUALQUER</xProd>
+        <NCM>64011000</NCM>
+        <uCom>UN</uCom>
+        <qCom>10</qCom>
+        <vUnCom>50</vUnCom>
+        <vProd>500</vProd>
+        <indTot>1</indTot>
+        <CEST>1234567</CEST>
+        <CFOP>6101</CFOP>
+        <cEANTrib>SEM GTIN</cEANTrib>
+        <uTrib>UN</uTrib>
+        <qTrib>10</qTrib>
+        <vUnTrib>50</vUnTrib>
+    </prod>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let produto = xml_original.parse::<Produto>()?;
+    let xml_novo = produto.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}
