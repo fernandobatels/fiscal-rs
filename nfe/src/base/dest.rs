@@ -37,6 +37,6 @@ impl FromStr for Destinatario {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.into())
+        quick_xml::de::from_str(s).map_err(|e| e.into())
     }
 }

@@ -1,18 +1,47 @@
 /// Grupos de COFINS
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
 /// COFINS
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq)]
 pub enum GrupoCofins {
     /// Outras Operações
-    #[serde(rename = "COFINSOutr")]
     CofinsOutr(GrupoCofinsOutr),
     /// Não Tributado
-    #[serde(rename = "COFINSNT")]
     CofinsNt(GrupoCofinsNt),
     /// Tributado pela alíquota
-    #[serde(rename = "COFINSAliq")]
     CofinsAliq(GrupoCofinsAliq),
+}
+
+impl<'de> Deserialize<'de> for GrupoCofins {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+
+        #[derive(Deserialize)]
+        pub enum TipoCofins {
+            #[serde(rename = "COFINSOutr")]
+            CofinsOutr(GrupoCofinsOutr),
+            #[serde(rename = "COFINSNT")]
+            CofinsNt(GrupoCofinsNt),
+            #[serde(rename = "COFINSAliq")]
+            CofinsAliq(GrupoCofinsAliq),
+        }
+
+        #[derive(Deserialize)]
+        struct GrupoCofinsContainer{
+            #[serde(rename = "$value")]
+            inner: TipoCofins
+        }
+
+        let gr = GrupoCofinsContainer::deserialize(deserializer)?;
+
+        Ok(match gr.inner {
+            TipoCofins::CofinsOutr(g) => GrupoCofins::CofinsOutr(g),
+            TipoCofins::CofinsNt(g) => GrupoCofins::CofinsNt(g),
+            TipoCofins::CofinsAliq(g) => GrupoCofins::CofinsAliq(g)
+        })
+    }
 }
 
 /// Grupo COFINS Outr - Outras Operações

@@ -1,18 +1,47 @@
 /// Grupos de PIS
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
 /// PIS
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq)]
 pub enum GrupoPis {
     /// Outras Operações
-    #[serde(rename = "PISOutr")]
     PisOutr(GrupoPisOutr),
     /// Não Tributado
-    #[serde(rename = "PISNT")]
     PisNt(GrupoPisNt),
     /// Tributado pela alíquota
-    #[serde(rename = "PISAliq")]
     PisAliq(GrupoPisAliq),
+}
+
+impl<'de> Deserialize<'de> for GrupoPis {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+
+        #[derive(Deserialize)]
+        pub enum TipoPis {
+            #[serde(rename = "PISOutr")]
+            PisOutr(GrupoPisOutr),
+            #[serde(rename = "PISNT")]
+            PisNt(GrupoPisNt),
+            #[serde(rename = "PISAliq")]
+            PisAliq(GrupoPisAliq),
+        }
+
+        #[derive(Deserialize)]
+        struct GrupoPisContainer{
+            #[serde(rename = "$value")]
+            inner: TipoPis
+        }
+
+        let gr = GrupoPisContainer::deserialize(deserializer)?;
+
+        Ok(match gr.inner {
+            TipoPis::PisOutr(g) => GrupoPis::PisOutr(g),
+            TipoPis::PisNt(g) => GrupoPis::PisNt(g),
+            TipoPis::PisAliq(g) => GrupoPis::PisAliq(g)
+        })
+    }
 }
 
 /// Grupo PIS Outr - Outras Operações

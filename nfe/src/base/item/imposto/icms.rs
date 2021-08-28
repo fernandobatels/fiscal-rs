@@ -1,17 +1,44 @@
 //! Grupos de ICMS
 
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use serde_repr::Deserialize_repr;
 
 /// ICMS
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq)]
 pub enum GrupoIcms {
     /// Tributação ICMS pelo Simples Nacional, CSOSN=202 ou 203
-    #[serde(rename = "ICMSSN202")]
     IcmsSn202(GrupoIcmsSn202),
     /// Tributação ICMS cobrado anteriormente por substituição tributária
-    #[serde(rename = "ICMS60")]
     Icms60(GrupoIcms60),
+}
+
+impl<'de> Deserialize<'de> for GrupoIcms {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+
+        #[derive(Deserialize)]
+        pub enum TipoIcms {
+            #[serde(rename = "ICMSSN202")]
+            IcmsSn202(GrupoIcmsSn202),
+            #[serde(rename = "ICMS60")]
+            Icms60(GrupoIcms60),
+        }
+
+        #[derive(Deserialize)]
+        struct GrupoIcmsContainer{
+            #[serde(rename = "$value")]
+            inner: TipoIcms
+        }
+
+        let gr = GrupoIcmsContainer::deserialize(deserializer)?;
+
+        Ok(match gr.inner {
+            TipoIcms::IcmsSn202(g) => GrupoIcms::IcmsSn202(g),
+            TipoIcms::Icms60(g) => GrupoIcms::Icms60(g)
+        })
+    }
 }
 
 /// Grupo ICMS 60 - Tributação ICMS cobrado anteriormente por substituição tributária
