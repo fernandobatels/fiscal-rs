@@ -81,7 +81,6 @@ fn to_string() -> Result<(), Error> {
 
     let endereco = xml_original.parse::<Endereco>()?;
     let xml_novo = endereco.to_string();
-    let xml_novo = format!("<Endereco>{}</Endereco>", xml_novo);
 
     assert_eq!(xml_original, xml_novo);
 

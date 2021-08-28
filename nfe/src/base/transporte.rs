@@ -10,7 +10,7 @@ use std::str::FromStr;
 #[serde(rename = "transp")]
 pub struct Transporte {
     /// Modalidade do frete
-    #[serde(rename = "modFrete")]
+    #[serde(rename = "$unflatten=modFrete")]
     pub modalidade: ModalidadeFrete,
 }
 
@@ -24,7 +24,7 @@ impl FromStr for Transporte {
 
 impl ToString for Transporte {
     fn to_string(&self) -> String {
-        serde_xml_rs::to_string(self).expect("Falha ao serializar o transporte")
+        quick_xml::se::to_string(self).expect("Falha ao serializar o transporte")
     }
 }
 

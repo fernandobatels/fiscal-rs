@@ -1,7 +1,7 @@
 //! Totalização dos produtos e serviços
 
 use super::Error;
-use serde::{ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
 /// Totalização da nota fiscal
@@ -41,7 +41,7 @@ impl FromStr for Totalizacao {
 
 impl ToString for Totalizacao {
     fn to_string(&self) -> String {
-        serde_xml_rs::to_string(self).expect("Falha ao serializar a totalização")
+        quick_xml::se::to_string(self).expect("Falha ao serializar a totalização")
     }
 }
 
@@ -99,49 +99,28 @@ struct TotalContainer {
     icms: IcmsTot,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct IcmsTot {
-    #[serde(rename = "vBC")]
+    #[serde(rename = "$unflatten=vBC")]
     valor_base_calculo: f32,
-    #[serde(rename = "vICMS")]
+    #[serde(rename = "$unflatten=vICMS")]
     valor_icms: f32,
-    #[serde(rename = "vProd")]
+    #[serde(rename = "$unflatten=vProd")]
     valor_produtos: f32,
-    #[serde(rename = "vFrete")]
+    #[serde(rename = "$unflatten=vFrete")]
     valor_frete: f32,
-    #[serde(rename = "vSeg")]
+    #[serde(rename = "$unflatten=vSeg")]
     valor_seguro: f32,
-    #[serde(rename = "vDesc")]
+    #[serde(rename = "$unflatten=vDesc")]
     valor_desconto: f32,
-    #[serde(rename = "vOutro")]
+    #[serde(rename = "$unflatten=vOutro")]
     valor_outros: f32,
-    #[serde(rename = "vPIS")]
+    #[serde(rename = "$unflatten=vPIS")]
     valor_pis: f32,
-    #[serde(rename = "vCOFINS")]
+    #[serde(rename = "$unflatten=vCOFINS")]
     valor_cofins: f32,
-    #[serde(rename = "vNF")]
+    #[serde(rename = "$unflatten=vNF")]
     valor_total: f32,
-    #[serde(rename = "vTotTrib")]
+    #[serde(rename = "$unflatten=vTotTrib")]
     valor_aproximado_tributos: f32,
-}
-
-impl Serialize for IcmsTot {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(11))?;
-        map.serialize_entry("vBC", &self.valor_base_calculo)?;
-        map.serialize_entry("vICMS", &self.valor_icms)?;
-        map.serialize_entry("vProd", &self.valor_produtos)?;
-        map.serialize_entry("vFrete", &self.valor_frete)?;
-        map.serialize_entry("vSeg", &self.valor_seguro)?;
-        map.serialize_entry("vDesc", &self.valor_desconto)?;
-        map.serialize_entry("vOutro", &self.valor_outros)?;
-        map.serialize_entry("vPIS", &self.valor_pis)?;
-        map.serialize_entry("vCOFINS", &self.valor_cofins)?;
-        map.serialize_entry("vNF", &self.valor_total)?;
-        map.serialize_entry("vTotTrib", &self.valor_aproximado_tributos)?;
-        map.end()
-    }
 }

@@ -10,17 +10,17 @@ use std::str::FromStr;
 #[derive(Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename = "dest")]
 pub struct Destinatario {
-    #[serde(rename = "CNPJ")]
+    #[serde(rename = "$unflatten=CNPJ")]
     pub cnpj: String,
-    #[serde(rename = "xNome")]
+    #[serde(rename = "$unflatten=xNome")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub razao_social: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "enderDest")]
     pub endereco: Option<Endereco>,
-    #[serde(rename = "IE")]
+    #[serde(rename = "$unflatten=IE")]
     pub ie: Option<String>,
-    #[serde(rename = "indIEDest")]
+    #[serde(rename = "$unflatten=indIEDest")]
     pub indicador_ie: IndicadorContribuicaoIe,
 }
 
@@ -46,6 +46,6 @@ impl FromStr for Destinatario {
 
 impl ToString for Destinatario {
     fn to_string(&self) -> String {
-        serde_xml_rs::to_string(self).expect("Falha ao serializar o destinatário")
+        quick_xml::se::to_string(self).expect("Falha ao serializar o destinatário")
     }
 }

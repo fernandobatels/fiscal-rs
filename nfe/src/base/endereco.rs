@@ -1,33 +1,35 @@
 //! Endereço do emitente/destinatário da NF-e
 
 use super::Error;
-use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Representação de um endereço usado na NFe
-#[derive(Debug, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Deserialize, PartialEq, Clone, Serialize)]
 pub struct Endereco {
-    #[serde(rename = "xLgr")]
+    #[serde(rename = "$unflatten=xLgr")]
     pub logradouro: String,
-    #[serde(rename = "nro")]
+    #[serde(rename = "$unflatten=nro")]
     pub numero: String,
-    #[serde(rename = "xCpl")]
+    #[serde(rename = "$unflatten=xCpl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub complemento: Option<String>,
-    #[serde(rename = "xBairro")]
+    #[serde(rename = "$unflatten=xBairro")]
     pub bairro: String,
-    #[serde(rename = "cMun")]
+    #[serde(rename = "$unflatten=cMun")]
     pub codigo_municipio: u32,
-    #[serde(rename = "xMun")]
+    #[serde(rename = "$unflatten=xMun")]
     pub nome_municipio: String,
-    #[serde(rename = "UF")]
+    #[serde(rename = "$unflatten=UF")]
     pub sigla_uf: String,
-    #[serde(rename = "CEP")]
+    #[serde(rename = "$unflatten=CEP")]
     pub cep: String,
-    #[serde(rename = "cPais")]
+    #[serde(rename = "$unflatten=cPais")]
     pub codigo_pais: u32,
-    #[serde(rename = "xPais")]
+    #[serde(rename = "$unflatten=xPais")]
     pub nome_pais: String,
-    #[serde(rename = "fone")]
+    #[serde(rename = "$unflatten=fone")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub telefone: Option<String>,
 }
 
@@ -39,33 +41,8 @@ impl FromStr for Endereco {
     }
 }
 
-impl Serialize for Endereco {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(11))?;
-        map.serialize_entry("xLgr", &self.logradouro)?;
-        map.serialize_entry("nro", &self.numero)?;
-        if let Some(cpl) = &self.complemento {
-            map.serialize_entry("xCpl", cpl)?;
-        }
-        map.serialize_entry("xBairro", &self.bairro)?;
-        map.serialize_entry("cMun", &self.codigo_municipio)?;
-        map.serialize_entry("xMun", &self.nome_municipio)?;
-        map.serialize_entry("UF", &self.sigla_uf)?;
-        map.serialize_entry("CEP", &self.cep)?;
-        map.serialize_entry("cPais", &self.codigo_pais)?;
-        map.serialize_entry("xPais", &self.nome_pais)?;
-        if let Some(fone) = &self.telefone {
-            map.serialize_entry("fone", fone)?;
-        }
-        map.end()
-    }
-}
-
 impl ToString for Endereco {
     fn to_string(&self) -> String {
-        serde_xml_rs::to_string(self).expect("Falha ao serializar o endereço")
+        quick_xml::se::to_string(self).expect("Falha ao serializar o endereço")
     }
 }
