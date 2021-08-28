@@ -17,7 +17,6 @@ impl<'de> Deserialize<'de> for GrupoPis {
     where
         D: Deserializer<'de>,
     {
-
         #[derive(Deserialize)]
         pub enum TipoPis {
             #[serde(rename = "PISOutr")]
@@ -29,9 +28,9 @@ impl<'de> Deserialize<'de> for GrupoPis {
         }
 
         #[derive(Deserialize)]
-        struct GrupoPisContainer{
+        struct GrupoPisContainer {
             #[serde(rename = "$value")]
-            inner: TipoPis
+            inner: TipoPis,
         }
 
         let gr = GrupoPisContainer::deserialize(deserializer)?;
@@ -39,7 +38,7 @@ impl<'de> Deserialize<'de> for GrupoPis {
         Ok(match gr.inner {
             TipoPis::PisOutr(g) => GrupoPis::PisOutr(g),
             TipoPis::PisNt(g) => GrupoPis::PisNt(g),
-            TipoPis::PisAliq(g) => GrupoPis::PisAliq(g)
+            TipoPis::PisAliq(g) => GrupoPis::PisAliq(g),
         })
     }
 }

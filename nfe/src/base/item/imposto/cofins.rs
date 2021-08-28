@@ -17,7 +17,6 @@ impl<'de> Deserialize<'de> for GrupoCofins {
     where
         D: Deserializer<'de>,
     {
-
         #[derive(Deserialize)]
         pub enum TipoCofins {
             #[serde(rename = "COFINSOutr")]
@@ -29,9 +28,9 @@ impl<'de> Deserialize<'de> for GrupoCofins {
         }
 
         #[derive(Deserialize)]
-        struct GrupoCofinsContainer{
+        struct GrupoCofinsContainer {
             #[serde(rename = "$value")]
-            inner: TipoCofins
+            inner: TipoCofins,
         }
 
         let gr = GrupoCofinsContainer::deserialize(deserializer)?;
@@ -39,7 +38,7 @@ impl<'de> Deserialize<'de> for GrupoCofins {
         Ok(match gr.inner {
             TipoCofins::CofinsOutr(g) => GrupoCofins::CofinsOutr(g),
             TipoCofins::CofinsNt(g) => GrupoCofins::CofinsNt(g),
-            TipoCofins::CofinsAliq(g) => GrupoCofins::CofinsAliq(g)
+            TipoCofins::CofinsAliq(g) => GrupoCofins::CofinsAliq(g),
         })
     }
 }

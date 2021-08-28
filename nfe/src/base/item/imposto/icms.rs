@@ -17,7 +17,6 @@ impl<'de> Deserialize<'de> for GrupoIcms {
     where
         D: Deserializer<'de>,
     {
-
         #[derive(Deserialize)]
         pub enum TipoIcms {
             #[serde(rename = "ICMSSN202")]
@@ -27,16 +26,16 @@ impl<'de> Deserialize<'de> for GrupoIcms {
         }
 
         #[derive(Deserialize)]
-        struct GrupoIcmsContainer{
+        struct GrupoIcmsContainer {
             #[serde(rename = "$value")]
-            inner: TipoIcms
+            inner: TipoIcms,
         }
 
         let gr = GrupoIcmsContainer::deserialize(deserializer)?;
 
         Ok(match gr.inner {
             TipoIcms::IcmsSn202(g) => GrupoIcms::IcmsSn202(g),
-            TipoIcms::Icms60(g) => GrupoIcms::Icms60(g)
+            TipoIcms::Icms60(g) => GrupoIcms::Icms60(g),
         })
     }
 }

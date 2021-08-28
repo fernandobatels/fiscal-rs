@@ -1,28 +1,20 @@
 //! Dados da emissão da NF-e
 
-use super::Error;
 use chrono::prelude::*;
-use serde::Deserialize;
-use serde_repr::Deserialize_repr;
-use std::str::FromStr;
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Dados referentes a emissão da nota
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Emissao {
-    #[serde(rename = "dhEmi")]
     pub horario: DateTime<Utc>,
-    #[serde(rename = "tpEmis")]
     pub tipo: TipoEmissao,
-    #[serde(rename = "finNFe")]
     pub finalidade: FinalidadeEmissao,
-    #[serde(rename = "procEmi")]
     pub processo: TipoProcessoEmissao,
-    #[serde(rename = "verProc")]
     pub versao_processo: String,
 }
 
 /// Tipo da emissão da nota
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum TipoEmissao {
     /// Emissão normal (não em contingência)
@@ -44,7 +36,7 @@ pub enum TipoEmissao {
 }
 
 /// Finalidade da emissão da nota
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum FinalidadeEmissao {
     Normal = 1,
@@ -54,7 +46,7 @@ pub enum FinalidadeEmissao {
 }
 
 /// Tipo do processo de emissão
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum TipoProcessoEmissao {
     /// Emissão de NF-e com aplicativo do contribuinte
@@ -65,12 +57,4 @@ pub enum TipoProcessoEmissao {
     AvulsaPeloContribuinte = 2,
     /// Emissão NF-e pelo contribuinte com aplicativo fornecido pelo Fisco
     ViaAplicativoDoFisco = 3,
-}
-
-impl FromStr for Emissao {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        quick_xml::de::from_str(s).map_err(|e| e.into())
-    }
 }
