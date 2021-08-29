@@ -1,5 +1,5 @@
 /// Grupos de PIS
-use serde::{Deserialize, Deserializer};
+use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// PIS
 #[derive(Debug, PartialEq)]
@@ -17,67 +17,128 @@ impl<'de> Deserialize<'de> for GrupoPis {
     where
         D: Deserializer<'de>,
     {
-        #[derive(Deserialize)]
-        pub enum TipoPis {
-            #[serde(rename = "PISOutr")]
-            PisOutr(GrupoPisOutr),
-            #[serde(rename = "PISNT")]
-            PisNt(GrupoPisNt),
-            #[serde(rename = "PISAliq")]
-            PisAliq(GrupoPisAliq),
+        let grc = GrupoPisContainer::deserialize(deserializer)?;
+
+        if let Some(gr) = grc.pis_outr {
+            return Ok(GrupoPis::PisOutr(gr));
         }
 
-        #[derive(Deserialize)]
-        struct GrupoPisContainer {
-            #[serde(rename = "$value")]
-            inner: TipoPis,
+        if let Some(gr) = grc.pis_nt {
+            return Ok(GrupoPis::PisNt(gr));
         }
 
-        let gr = GrupoPisContainer::deserialize(deserializer)?;
+        if let Some(gr) = grc.pis_aliq {
+            return Ok(GrupoPis::PisAliq(gr));
+        }
 
-        Ok(match gr.inner {
-            TipoPis::PisOutr(g) => GrupoPis::PisOutr(g),
-            TipoPis::PisNt(g) => GrupoPis::PisNt(g),
-            TipoPis::PisAliq(g) => GrupoPis::PisAliq(g),
-        })
+        Err(Error::custom("Tipo de PIS não suportado".to_string()))
     }
 }
 
+impl Serialize for GrupoPis {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let grc = match self {
+            GrupoPis::PisOutr(g) => GrupoPisContainer {
+                pis_outr: Some(g.clone()),
+                pis_nt: None,
+                pis_aliq: None,
+            },
+            GrupoPis::PisNt(g) => GrupoPisContainer {
+                pis_outr: None,
+                pis_nt: Some(g.clone()),
+                pis_aliq: None,
+            },
+            GrupoPis::PisAliq(g) => GrupoPisContainer {
+                pis_outr: None,
+                pis_nt: None,
+                pis_aliq: Some(g.clone()),
+            },
+        };
+
+        grc.serialize(serializer)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+struct GrupoPisContainer {
+    #[serde(rename = "PISOutr")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pis_outr: Option<GrupoPisOutr>,
+    #[serde(rename = "PISNT")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pis_nt: Option<GrupoPisNt>,
+    #[serde(rename = "PISAliq")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pis_aliq: Option<GrupoPisAliq>,
+}
+
 /// Grupo PIS Outr - Outras Operações
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct GrupoPisOutr {
     /// CST - Código de Situação Tributária do PIS
-    #[serde(rename = "CST")]
+    #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
     /// Valor da base de cálculo do PIS
-    #[serde(rename = "vBC")]
+    #[serde(rename = "$unflatten=vBC")]
     pub valor_base_calculo: f32,
     /// Alíquota do PIS(%)
-    #[serde(rename = "pPIS")]
+    #[serde(rename = "$unflatten=pPIS")]
     pub aliquota: f32,
+}
+
+impl Clone for GrupoPisOutr {
+    fn clone(&self) -> Self {
+        Self {
+            codigo_situacao: self.codigo_situacao.clone(),
+            valor_base_calculo: self.valor_base_calculo,
+            aliquota: self.aliquota,
+        }
+    }
 }
 
 /// Grupo PIS NT - PIS não tributado
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct GrupoPisNt {
     /// CST - Código de Situação Tributária do PIS
-    #[serde(rename = "CST")]
+    #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
 }
 
+impl Clone for GrupoPisNt {
+    fn clone(&self) -> Self {
+        Self {
+            codigo_situacao: self.codigo_situacao.clone(),
+        }
+    }
+}
+
 /// Grupo PIS Aliq - Aliq Operações
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct GrupoPisAliq {
     /// CST - Código de Situação Tributária do PIS
-    #[serde(rename = "CST")]
+    #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
     /// Valor da base de cálculo do PIS
-    #[serde(rename = "vBC")]
+    #[serde(rename = "$unflatten=vBC")]
     pub valor_base_calculo: f32,
     /// Alíquota do PIS(%)
-    #[serde(rename = "pPIS")]
+    #[serde(rename = "$unflatten=pPIS")]
     pub aliquota: f32,
     /// Valor do PIS
-    #[serde(rename = "vPIS")]
+    #[serde(rename = "$unflatten=vPIS")]
     pub valor: f32,
+}
+
+impl Clone for GrupoPisAliq {
+    fn clone(&self) -> Self {
+        Self {
+            codigo_situacao: self.codigo_situacao.clone(),
+            valor_base_calculo: self.valor_base_calculo,
+            aliquota: self.aliquota,
+            valor: self.valor,
+        }
+    }
 }

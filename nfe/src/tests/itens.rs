@@ -410,3 +410,43 @@ fn produto_to_string() -> Result<(), Error> {
 
     Ok(())
 }
+
+#[test]
+fn imposto_to_string() -> Result<(), Error> {
+    let mut xml_original = "<imposto>
+            <vTotTrib>0</vTotTrib>
+            <ICMS>
+                <ICMSSN202>
+                    <orig>0</orig>
+                    <CSOSN>202</CSOSN>
+                    <modBCST>4</modBCST>
+                    <vBCST>0</vBCST>
+                    <pICMSST>0</pICMSST>
+                    <vICMSST>0</vICMSST>
+                </ICMSSN202>
+            </ICMS>
+            <PIS>
+                <PISOutr>
+                    <CST>49</CST>
+                    <vBC>0</vBC>
+                    <pPIS>0</pPIS>
+                </PISOutr>
+            </PIS>
+            <COFINS>
+                <COFINSOutr>
+                    <CST>49</CST>
+                    <vBC>0</vBC>
+                    <pCOFINS>0</pCOFINS>
+                </COFINSOutr>
+            </COFINS>
+        </imposto>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let imposto = xml_original.parse::<Imposto>()?;
+    let xml_novo = imposto.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}

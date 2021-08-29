@@ -1,5 +1,5 @@
 /// Grupos de COFINS
-use serde::{Deserialize, Deserializer};
+use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// COFINS
 #[derive(Debug, PartialEq)]
@@ -17,67 +17,128 @@ impl<'de> Deserialize<'de> for GrupoCofins {
     where
         D: Deserializer<'de>,
     {
-        #[derive(Deserialize)]
-        pub enum TipoCofins {
-            #[serde(rename = "COFINSOutr")]
-            CofinsOutr(GrupoCofinsOutr),
-            #[serde(rename = "COFINSNT")]
-            CofinsNt(GrupoCofinsNt),
-            #[serde(rename = "COFINSAliq")]
-            CofinsAliq(GrupoCofinsAliq),
+        let grc = GrupoCofinsContainer::deserialize(deserializer)?;
+
+        if let Some(gr) = grc.cofins_outr {
+            return Ok(GrupoCofins::CofinsOutr(gr));
         }
 
-        #[derive(Deserialize)]
-        struct GrupoCofinsContainer {
-            #[serde(rename = "$value")]
-            inner: TipoCofins,
+        if let Some(gr) = grc.cofins_nt {
+            return Ok(GrupoCofins::CofinsNt(gr));
         }
 
-        let gr = GrupoCofinsContainer::deserialize(deserializer)?;
+        if let Some(gr) = grc.cofins_aliq {
+            return Ok(GrupoCofins::CofinsAliq(gr));
+        }
 
-        Ok(match gr.inner {
-            TipoCofins::CofinsOutr(g) => GrupoCofins::CofinsOutr(g),
-            TipoCofins::CofinsNt(g) => GrupoCofins::CofinsNt(g),
-            TipoCofins::CofinsAliq(g) => GrupoCofins::CofinsAliq(g),
-        })
+        Err(Error::custom("Tipo de COFINS não suportado".to_string()))
     }
 }
 
+impl Serialize for GrupoCofins {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let grc = match self {
+            GrupoCofins::CofinsOutr(g) => GrupoCofinsContainer {
+                cofins_outr: Some(g.clone()),
+                cofins_nt: None,
+                cofins_aliq: None,
+            },
+            GrupoCofins::CofinsNt(g) => GrupoCofinsContainer {
+                cofins_outr: None,
+                cofins_nt: Some(g.clone()),
+                cofins_aliq: None,
+            },
+            GrupoCofins::CofinsAliq(g) => GrupoCofinsContainer {
+                cofins_outr: None,
+                cofins_nt: None,
+                cofins_aliq: Some(g.clone()),
+            },
+        };
+
+        grc.serialize(serializer)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+struct GrupoCofinsContainer {
+    #[serde(rename = "COFINSOutr")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cofins_outr: Option<GrupoCofinsOutr>,
+    #[serde(rename = "COFINSNT")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cofins_nt: Option<GrupoCofinsNt>,
+    #[serde(rename = "COFINSAliq")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cofins_aliq: Option<GrupoCofinsAliq>,
+}
+
 /// Grupo COFINS Outr - Outras Operações
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct GrupoCofinsOutr {
     /// CST - Código de Situação Tributária do COFINS
-    #[serde(rename = "CST")]
+    #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
     /// Valor da base de cálculo do COFINS
-    #[serde(rename = "vBC")]
+    #[serde(rename = "$unflatten=vBC")]
     pub valor_base_calculo: f32,
     /// Alíquota do COFINS(%)
-    #[serde(rename = "pCOFINS")]
+    #[serde(rename = "$unflatten=pCOFINS")]
     pub aliquota: f32,
+}
+
+impl Clone for GrupoCofinsOutr {
+    fn clone(&self) -> Self {
+        Self {
+            codigo_situacao: self.codigo_situacao.clone(),
+            valor_base_calculo: self.valor_base_calculo,
+            aliquota: self.aliquota,
+        }
+    }
 }
 
 /// Grupo COFINS NT - COFINS não tributado
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct GrupoCofinsNt {
     /// CST - Código de Situação Tributária do COFINS
-    #[serde(rename = "CST")]
+    #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
 }
 
+impl Clone for GrupoCofinsNt {
+    fn clone(&self) -> Self {
+        Self {
+            codigo_situacao: self.codigo_situacao.clone(),
+        }
+    }
+}
+
 /// Grupo COFINS Aliq - Aliq Operações
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct GrupoCofinsAliq {
     /// CST - Código de Situação Tributária do COFINS
-    #[serde(rename = "CST")]
+    #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
     /// Valor da base de cálculo do COFINS
-    #[serde(rename = "vBC")]
+    #[serde(rename = "$unflatten=vBC")]
     pub valor_base_calculo: f32,
     /// Alíquota do COFINS(%)
-    #[serde(rename = "pCOFINS")]
+    #[serde(rename = "$unflatten=pCOFINS")]
     pub aliquota: f32,
     /// Valor do COFINS
-    #[serde(rename = "vCOFINS")]
+    #[serde(rename = "$unflatten=vCOFINS")]
     pub valor: f32,
+}
+
+impl Clone for GrupoCofinsAliq {
+    fn clone(&self) -> Self {
+        Self {
+            codigo_situacao: self.codigo_situacao.clone(),
+            valor_base_calculo: self.valor_base_calculo,
+            aliquota: self.aliquota,
+            valor: self.valor,
+        }
+    }
 }
