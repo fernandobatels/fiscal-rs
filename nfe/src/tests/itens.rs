@@ -450,3 +450,40 @@ fn imposto_to_string() -> Result<(), Error> {
 
     Ok(())
 }
+
+#[test]
+fn to_string() -> Result<(), Error> {
+    let mut xml_original = "
+        <det nItem=\"1\">
+            <prod>
+                <cProd>11007</cProd>
+                <cEAN>SEM GTIN</cEAN>
+                <xProd>UM PRODUTO TESTE QUALQUER</xProd>
+                <NCM>64011000</NCM>
+                <uCom>UN</uCom>
+                <qCom>10</qCom>
+                <vUnCom>50</vUnCom>
+                <vProd>500</vProd>
+                <indTot>1</indTot>
+                <CEST>1234567</CEST>
+                <CFOP>6101</CFOP>
+                <cEANTrib>SEM GTIN</cEANTrib>
+                <uTrib>UN</uTrib>
+                <qTrib>10</qTrib>
+                <vUnTrib>50</vUnTrib>
+            </prod>
+            <imposto>
+                <vTotTrib>0</vTotTrib>
+            </imposto>
+       </det>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+    xml_original = xml_original.replace("detnItem", "det nItem");
+
+    let item = xml_original.parse::<Item>()?;
+    let xml_novo = item.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}
