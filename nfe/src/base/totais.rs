@@ -5,7 +5,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
 /// Totalização da nota fiscal
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Totalizacao {
     /// Base de cálculo do ICMS
     pub valor_base_calculo: f32,

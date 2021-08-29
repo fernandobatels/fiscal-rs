@@ -1,4 +1,4 @@
-//! Destinarário da NF-e no modelo 55
+//! Destinatário da NF-e no modelo 55
 
 use super::Error;
 use crate::base::dest::Destinatario as DestinatarioBase;

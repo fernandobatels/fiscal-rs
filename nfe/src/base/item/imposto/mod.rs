@@ -13,7 +13,7 @@ pub use icms::*;
 pub use pis::*;
 
 /// Detalhamentos impostos sobre o item
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(rename = "imposto")]
 pub struct Imposto {
     /// Valor aproximado total de tributos federais, estaduais e municipais

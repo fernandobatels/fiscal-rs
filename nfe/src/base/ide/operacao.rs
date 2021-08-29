@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Dados referentes a operação da nota
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Operacao {
     pub horario: Option<DateTime<Utc>>,
     pub tipo: TipoOperacao,

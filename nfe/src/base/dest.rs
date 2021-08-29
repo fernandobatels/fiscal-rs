@@ -1,4 +1,4 @@
-//! Destinarário da NF-e
+//! Destinatário da NF-e
 
 use super::endereco::*;
 use super::Error;
@@ -7,7 +7,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::str::FromStr;
 
 /// Destinatário base da NF-e
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(rename = "dest")]
 pub struct Destinatario {
     #[serde(rename = "$unflatten=CNPJ")]

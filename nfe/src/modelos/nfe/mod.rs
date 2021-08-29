@@ -1,5 +1,6 @@
 //! Modelo 55 da NF-e
 
+use crate::base::dest::Destinatario as DestinatarioBase;
 pub use crate::base::emit::*;
 pub use crate::base::endereco::*;
 pub use crate::base::ide::*;
@@ -60,6 +61,24 @@ impl TryFrom<NfeBase> for Nfe {
     }
 }
 
+impl From<&Nfe> for NfeBase {
+    fn from(doc: &Nfe) -> Self {
+        let dest: DestinatarioBase = (&doc.dest).into();
+
+        Self {
+            versao: doc.versao.clone(),
+            chave_acesso: doc.chave_acesso.clone(),
+            ide: doc.ide.clone(),
+            emit: doc.emit.clone(),
+            dest: Some(dest),
+            itens: doc.itens.clone(),
+            totais: doc.totais.clone(),
+            transporte: doc.transporte.clone(),
+            informacao_complementar: doc.informacao_complementar.clone(),
+        }
+    }
+}
+
 impl FromStr for Nfe {
     type Err = Error;
 
@@ -73,5 +92,13 @@ impl TryFrom<File> for Nfe {
 
     fn try_from(f: File) -> Result<Self, Self::Error> {
         NfeBase::try_from(f)?.try_into()
+    }
+}
+
+impl ToString for Nfe {
+    fn to_string(&self) -> String {
+        let base: NfeBase = self.into();
+
+        base.to_string()
     }
 }

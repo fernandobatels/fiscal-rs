@@ -2,7 +2,7 @@
 use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// PIS
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum GrupoPis {
     /// Outras Operações
     PisOutr(GrupoPisOutr),
@@ -76,7 +76,7 @@ struct GrupoPisContainer {
 }
 
 /// Grupo PIS Outr - Outras Operações
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoPisOutr {
     /// CST - Código de Situação Tributária do PIS
     #[serde(rename = "$unflatten=CST")]
@@ -89,34 +89,16 @@ pub struct GrupoPisOutr {
     pub aliquota: f32,
 }
 
-impl Clone for GrupoPisOutr {
-    fn clone(&self) -> Self {
-        Self {
-            codigo_situacao: self.codigo_situacao.clone(),
-            valor_base_calculo: self.valor_base_calculo,
-            aliquota: self.aliquota,
-        }
-    }
-}
-
 /// Grupo PIS NT - PIS não tributado
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoPisNt {
     /// CST - Código de Situação Tributária do PIS
     #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
 }
 
-impl Clone for GrupoPisNt {
-    fn clone(&self) -> Self {
-        Self {
-            codigo_situacao: self.codigo_situacao.clone(),
-        }
-    }
-}
-
 /// Grupo PIS Aliq - Aliq Operações
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoPisAliq {
     /// CST - Código de Situação Tributária do PIS
     #[serde(rename = "$unflatten=CST")]
@@ -130,15 +112,4 @@ pub struct GrupoPisAliq {
     /// Valor do PIS
     #[serde(rename = "$unflatten=vPIS")]
     pub valor: f32,
-}
-
-impl Clone for GrupoPisAliq {
-    fn clone(&self) -> Self {
-        Self {
-            codigo_situacao: self.codigo_situacao.clone(),
-            valor_base_calculo: self.valor_base_calculo,
-            aliquota: self.aliquota,
-            valor: self.valor,
-        }
-    }
 }

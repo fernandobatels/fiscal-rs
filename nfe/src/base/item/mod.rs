@@ -11,7 +11,7 @@ pub use imposto::*;
 pub use produto::*;
 
 /// Item da nota
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 #[serde(rename = "det")]
 pub struct Item {
     #[serde(rename = "nItem")]

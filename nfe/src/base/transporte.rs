@@ -6,7 +6,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::str::FromStr;
 
 /// Transporte da nota
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(rename = "transp")]
 pub struct Transporte {
     /// Modalidade do frete

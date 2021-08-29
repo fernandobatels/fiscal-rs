@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Emitente da NF-e
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(rename = "emit")]
 pub struct Emitente {
     #[serde(rename = "$unflatten=CNPJ")]

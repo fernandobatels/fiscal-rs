@@ -13,7 +13,7 @@ pub use emissao::*;
 pub use operacao::*;
 
 /// Identificação da NF-e
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Identificacao {
     pub codigo_uf: u8,
     pub chave: ComposicaoChaveAcesso,
@@ -56,7 +56,7 @@ pub enum TipoAmbiente {
 }
 
 /// Dados referentes a regeração da chave de acesso
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ComposicaoChaveAcesso {
     pub codigo: String,
     pub digito_verificador: u8,

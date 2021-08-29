@@ -4,7 +4,7 @@ use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// ICMS
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum GrupoIcms {
     /// Tributação ICMS pelo Simples Nacional, CSOSN=202 ou 203
     IcmsSn202(GrupoIcmsSn202),
@@ -62,7 +62,7 @@ struct GrupoIcmsContainer {
 }
 
 /// Grupo ICMS 60 - Tributação ICMS cobrado anteriormente por substituição tributária
-#[derive(Debug, PartialEq, Deserialize, Serialize, Copy, Clone)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoIcms60 {
     /// Origem da mercadoria
     #[serde(rename = "$unflatten=orig")]
@@ -79,7 +79,7 @@ pub struct GrupoIcms60 {
 }
 
 /// Tributação ICMS pelo Simples Nacional, CSOSN=202 ou 203
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoIcmsSn202 {
     /// Origem da mercadoria
     #[serde(rename = "$unflatten=orig")]
@@ -99,19 +99,6 @@ pub struct GrupoIcmsSn202 {
     /// Valor do ICMS ST
     #[serde(rename = "$unflatten=vICMSST")]
     pub valor: f32,
-}
-
-impl Clone for GrupoIcmsSn202 {
-    fn clone(&self) -> Self {
-        Self {
-            origem: self.origem,
-            codigo_situacao: self.codigo_situacao.clone(),
-            base_calculo: self.base_calculo,
-            valor_base_calculo: self.valor_base_calculo,
-            aliquota: self.aliquota,
-            valor: self.valor,
-        }
-    }
 }
 
 /// Origem da mercadoria

@@ -2,7 +2,7 @@
 use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// COFINS
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum GrupoCofins {
     /// Outras Operações
     CofinsOutr(GrupoCofinsOutr),
@@ -76,7 +76,7 @@ struct GrupoCofinsContainer {
 }
 
 /// Grupo COFINS Outr - Outras Operações
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoCofinsOutr {
     /// CST - Código de Situação Tributária do COFINS
     #[serde(rename = "$unflatten=CST")]
@@ -89,34 +89,16 @@ pub struct GrupoCofinsOutr {
     pub aliquota: f32,
 }
 
-impl Clone for GrupoCofinsOutr {
-    fn clone(&self) -> Self {
-        Self {
-            codigo_situacao: self.codigo_situacao.clone(),
-            valor_base_calculo: self.valor_base_calculo,
-            aliquota: self.aliquota,
-        }
-    }
-}
-
 /// Grupo COFINS NT - COFINS não tributado
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoCofinsNt {
     /// CST - Código de Situação Tributária do COFINS
     #[serde(rename = "$unflatten=CST")]
     pub codigo_situacao: String,
 }
 
-impl Clone for GrupoCofinsNt {
-    fn clone(&self) -> Self {
-        Self {
-            codigo_situacao: self.codigo_situacao.clone(),
-        }
-    }
-}
-
 /// Grupo COFINS Aliq - Aliq Operações
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct GrupoCofinsAliq {
     /// CST - Código de Situação Tributária do COFINS
     #[serde(rename = "$unflatten=CST")]
@@ -130,15 +112,4 @@ pub struct GrupoCofinsAliq {
     /// Valor do COFINS
     #[serde(rename = "$unflatten=vCOFINS")]
     pub valor: f32,
-}
-
-impl Clone for GrupoCofinsAliq {
-    fn clone(&self) -> Self {
-        Self {
-            codigo_situacao: self.codigo_situacao.clone(),
-            valor_base_calculo: self.valor_base_calculo,
-            aliquota: self.aliquota,
-            valor: self.valor,
-        }
-    }
 }

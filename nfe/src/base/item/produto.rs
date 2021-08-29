@@ -6,7 +6,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::str::FromStr;
 
 /// Detalhamento do produto do item
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Produto {
     /// Código do produto
     pub codigo: String,
@@ -41,7 +41,7 @@ pub struct Produto {
 }
 
 /// Dados sobre a tributação do produto
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ProdutoTributacao {
     /// CEST - Código Especificador da Substituição Tributária
     pub cest: Option<String>,

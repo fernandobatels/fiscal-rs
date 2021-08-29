@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Dados referentes a emissão da nota
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Emissao {
     pub horario: DateTime<Utc>,
     pub tipo: TipoEmissao,
