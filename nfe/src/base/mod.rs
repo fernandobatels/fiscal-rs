@@ -3,7 +3,7 @@
 //! Tipos e estruturas para tratamento da NF-e sem
 //! distinção dos modelos.
 
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Read;
@@ -53,7 +53,7 @@ impl FromStr for Nfe {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.into())
+        quick_xml::de::from_str(s).map_err(|e| e.into())
     }
 }
 
@@ -68,47 +68,18 @@ impl TryFrom<File> for Nfe {
     }
 }
 
+impl ToString for Nfe {
+    fn to_string(&self) -> String {
+        quick_xml::se::to_string(self).expect("Falha ao serializar a nota")
+    }
+}
+
 impl<'de> Deserialize<'de> for Nfe {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        #[derive(Deserialize)]
-        #[serde(rename = "NFe")]
-        struct NfeRoot {
-            #[serde(rename = "infNFe")]
-            pub inf: NfeHelper,
-        }
-
-        #[derive(Deserialize)]
-        struct InfAdd {
-            #[serde(rename = "infCpl")]
-            pub informacao_complementar: Option<String>,
-        }
-
-        #[derive(Deserialize)]
-        struct NfeHelper {
-            #[serde(rename = "versao")]
-            pub versao: VersaoLayout,
-            #[serde(rename = "Id")]
-            pub chave_acesso: String,
-            #[serde(rename = "ide")]
-            pub ide: Identificacao,
-            #[serde(rename = "emit")]
-            pub emit: Emitente,
-            #[serde(rename = "dest")]
-            pub dest: Option<Destinatario>,
-            #[serde(rename = "det")]
-            pub itens: Vec<Item>,
-            #[serde(rename = "total")]
-            pub totais: Totalizacao,
-            #[serde(rename = "transp")]
-            pub transporte: Transporte,
-            #[serde(rename = "infAdic")]
-            pub add: Option<InfAdd>,
-        }
-
-        let nfe = NfeRoot::deserialize(deserializer)?;
+        let nfe = NfeRootContainer::deserialize(deserializer)?;
 
         Ok(Self {
             versao: nfe.inf.versao,
@@ -125,4 +96,78 @@ impl<'de> Deserialize<'de> for Nfe {
             },
         })
     }
+}
+
+impl Serialize for Nfe {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let inf = NfeInfContainer {
+            versao: self.versao,
+            chave_acesso: format!("NFe{}", self.chave_acesso),
+            ide: self.ide.clone(),
+            emit: self.emit.clone(),
+            dest: self.dest.clone(),
+            itens: self.itens.clone(),
+            totais: self.totais.clone(),
+            transporte: self.transporte.clone(),
+            add: match self.informacao_complementar.clone() {
+                Some(ic) => Some(InfAddContainer {
+                    informacao_complementar: Some(ic),
+                }),
+                None => None,
+            },
+        };
+
+        let root = NfeRootContainer { inf };
+
+        root.serialize(serializer)
+    }
+}
+
+impl Serialize for VersaoLayout {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(match self {
+            VersaoLayout::V4_00 => "4.00",
+        })
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename = "NFe")]
+struct NfeRootContainer {
+    #[serde(rename = "infNFe")]
+    pub inf: NfeInfContainer,
+}
+
+#[derive(Deserialize, Serialize)]
+struct InfAddContainer {
+    #[serde(rename = "$unflatten=infCpl")]
+    pub informacao_complementar: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+struct NfeInfContainer {
+    #[serde(rename = "versao")]
+    pub versao: VersaoLayout,
+    #[serde(rename = "Id")]
+    pub chave_acesso: String,
+    #[serde(rename = "ide")]
+    pub ide: Identificacao,
+    #[serde(rename = "emit")]
+    pub emit: Emitente,
+    #[serde(rename = "dest")]
+    pub dest: Option<Destinatario>,
+    #[serde(rename = "det")]
+    pub itens: Vec<Item>,
+    #[serde(rename = "total")]
+    pub totais: Totalizacao,
+    #[serde(rename = "transp")]
+    pub transporte: Transporte,
+    #[serde(rename = "infAdic")]
+    pub add: Option<InfAddContainer>,
 }

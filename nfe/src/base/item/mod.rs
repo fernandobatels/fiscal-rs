@@ -1,7 +1,7 @@
 //! Detalhamento de produtos e serviços
 
 use super::Error;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 mod imposto;
@@ -11,7 +11,7 @@ pub use imposto::*;
 pub use produto::*;
 
 /// Item da nota
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone)]
 #[serde(rename = "det")]
 pub struct Item {
     #[serde(rename = "nItem")]
@@ -26,6 +26,12 @@ impl FromStr for Item {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.into())
+        quick_xml::de::from_str(s).map_err(|e| e.into())
+    }
+}
+
+impl ToString for Item {
+    fn to_string(&self) -> String {
+        quick_xml::se::to_string(self).expect("Falha ao serializar o item")
     }
 }

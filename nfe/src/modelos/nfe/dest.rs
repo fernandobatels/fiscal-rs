@@ -1,4 +1,4 @@
-//! Destinarário da NF-e no modelo 55
+//! Destinatário da NF-e no modelo 55
 
 use super::Error;
 use crate::base::dest::Destinatario as DestinatarioBase;
@@ -38,6 +38,18 @@ impl TryFrom<DestinatarioBase> for Destinatario {
     }
 }
 
+impl From<&Destinatario> for DestinatarioBase {
+    fn from(dest: &Destinatario) -> Self {
+        Self {
+            cnpj: dest.cnpj.clone(),
+            razao_social: Some(dest.razao_social.clone()),
+            endereco: Some(dest.endereco.clone()),
+            ie: dest.ie.clone(),
+            indicador_ie: dest.indicador_ie,
+        }
+    }
+}
+
 impl FromStr for Destinatario {
     type Err = Error;
 
@@ -45,5 +57,13 @@ impl FromStr for Destinatario {
         let base = s.parse::<DestinatarioBase>()?;
 
         base.try_into()
+    }
+}
+
+impl ToString for Destinatario {
+    fn to_string(&self) -> String {
+        let base: DestinatarioBase = self.into();
+
+        base.to_string()
     }
 }

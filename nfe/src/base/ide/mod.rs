@@ -2,8 +2,8 @@
 
 use super::Error;
 use chrono::prelude::*;
-use serde::{Deserialize, Deserializer};
-use serde_repr::Deserialize_repr;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::str::FromStr;
 
 mod emissao;
@@ -13,7 +13,7 @@ pub use emissao::*;
 pub use operacao::*;
 
 /// Identificação da NF-e
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Identificacao {
     pub codigo_uf: u8,
     pub chave: ComposicaoChaveAcesso,
@@ -28,7 +28,7 @@ pub struct Identificacao {
 }
 
 /// Modelo do documento fiscal: NF-e ou NFC-e
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum ModeloDocumentoFiscal {
     Nfe = 55,
@@ -36,7 +36,7 @@ pub enum ModeloDocumentoFiscal {
 }
 
 /// Formato de impressão do DANFE
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum FormatoImpressaoDanfe {
     SemGeracao = 0,
@@ -48,7 +48,7 @@ pub enum FormatoImpressaoDanfe {
 }
 
 /// Tipo do ambiente da NF
-#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Deserialize_repr, Serialize_repr)]
 #[repr(u8)]
 pub enum TipoAmbiente {
     Producao = 1,
@@ -56,9 +56,9 @@ pub enum TipoAmbiente {
 }
 
 /// Dados referentes a regeração da chave de acesso
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ComposicaoChaveAcesso {
-    pub codigo: u32,
+    pub codigo: String,
     pub digito_verificador: u8,
 }
 
@@ -66,7 +66,13 @@ impl FromStr for Identificacao {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.into())
+        quick_xml::de::from_str(s).map_err(|e| e.into())
+    }
+}
+
+impl ToString for Identificacao {
+    fn to_string(&self) -> String {
+        quick_xml::se::to_string(self).expect("Falha ao serializar a identificação")
     }
 }
 
@@ -76,55 +82,6 @@ impl<'de> Deserialize<'de> for Identificacao {
         D: Deserializer<'de>,
     {
         // TODO: voltar a tentar usar o serde flatten
-
-        #[derive(Deserialize)]
-        struct IdeContainer {
-            #[serde(rename = "cUF")]
-            pub codigo_uf: u8,
-            #[serde(rename = "nNF")]
-            pub numero: u32,
-            #[serde(rename = "serie")]
-            pub serie: u16,
-            #[serde(rename = "mod")]
-            pub modelo: ModeloDocumentoFiscal,
-            #[serde(rename = "cMunFG")]
-            pub codigo_municipio: u32,
-            #[serde(rename = "tpImp")]
-            pub formato_danfe: FormatoImpressaoDanfe,
-            #[serde(rename = "tpAmb")]
-            pub ambiente: TipoAmbiente,
-
-            #[serde(rename = "cNF")]
-            pub c_codigo: u32,
-            #[serde(rename = "cDV")]
-            pub c_digito_verificador: u8,
-
-            #[serde(rename = "dhEmi")]
-            pub e_horario: DateTime<Utc>,
-            #[serde(rename = "tpEmis")]
-            pub e_tipo: TipoEmissao,
-            #[serde(rename = "finNFe")]
-            pub e_finalidade: FinalidadeEmissao,
-            #[serde(rename = "procEmi")]
-            pub e_processo: TipoProcessoEmissao,
-            #[serde(rename = "verProc")]
-            pub e_versao_processo: String,
-
-            #[serde(rename = "dhSaiEnt")]
-            pub o_horario: Option<DateTime<Utc>>,
-            #[serde(rename = "tpNF")]
-            pub o_tipo: TipoOperacao,
-            #[serde(rename = "idDest")]
-            pub o_destino: DestinoOperacao,
-            #[serde(rename = "natOp")]
-            pub o_natureza: String,
-            #[serde(rename = "indFinal")]
-            pub o_consumidor: TipoConsumidor,
-            #[serde(rename = "indPres")]
-            pub o_presenca: TipoPresencaComprador,
-            #[serde(rename = "indIntermed")]
-            pub o_intermediador: Option<TipoIntermediador>,
-        }
 
         let ide = IdeContainer::deserialize(deserializer)?;
 
@@ -137,7 +94,7 @@ impl<'de> Deserialize<'de> for Identificacao {
             formato_danfe: ide.formato_danfe,
             ambiente: ide.ambiente,
             chave: ComposicaoChaveAcesso {
-                codigo: ide.c_codigo,
+                codigo: ide.c_codigo.clone(),
                 digito_verificador: ide.c_digito_verificador,
             },
             operacao: Operacao {
@@ -158,4 +115,105 @@ impl<'de> Deserialize<'de> for Identificacao {
             },
         })
     }
+}
+
+impl Serialize for Identificacao {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let ide = IdeContainer {
+            codigo_uf: self.codigo_uf,
+            numero: self.numero,
+            serie: self.serie,
+            modelo: self.modelo,
+            codigo_municipio: self.codigo_municipio,
+            formato_danfe: self.formato_danfe,
+            ambiente: self.ambiente,
+            c_codigo: self.chave.codigo.clone(),
+            c_digito_verificador: self.chave.digito_verificador,
+            o_horario: self.operacao.horario,
+            o_tipo: self.operacao.tipo,
+            o_destino: self.operacao.destino,
+            o_natureza: self.operacao.natureza.clone(),
+            o_consumidor: self.operacao.consumidor,
+            o_presenca: self.operacao.presenca,
+            o_intermediador: self.operacao.intermediador,
+            e_horario: self.emissao.horario,
+            e_tipo: self.emissao.tipo,
+            e_finalidade: self.emissao.finalidade,
+            e_processo: self.emissao.processo,
+            e_versao_processo: self.emissao.versao_processo.clone(),
+        };
+
+        ide.serialize(serializer)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename = "ide")]
+struct IdeContainer {
+    #[serde(rename = "$unflatten=cUF")]
+    pub codigo_uf: u8,
+    #[serde(rename = "$unflatten=nNF")]
+    pub numero: u32,
+    #[serde(rename = "$unflatten=serie")]
+    pub serie: u16,
+    #[serde(rename = "$unflatten=mod")]
+    pub modelo: ModeloDocumentoFiscal,
+    #[serde(rename = "$unflatten=cMunFG")]
+    pub codigo_municipio: u32,
+    #[serde(rename = "$unflatten=tpImp")]
+    pub formato_danfe: FormatoImpressaoDanfe,
+    #[serde(rename = "$unflatten=tpAmb")]
+    pub ambiente: TipoAmbiente,
+
+    #[serde(rename = "$unflatten=cNF")]
+    pub c_codigo: String,
+    #[serde(rename = "$unflatten=cDV")]
+    pub c_digito_verificador: u8,
+
+    #[serde(rename = "$unflatten=dhEmi")]
+    #[serde(serialize_with = "serialize_horario")]
+    pub e_horario: DateTime<Utc>,
+    #[serde(rename = "$unflatten=tpEmis")]
+    pub e_tipo: TipoEmissao,
+    #[serde(rename = "$unflatten=finNFe")]
+    pub e_finalidade: FinalidadeEmissao,
+    #[serde(rename = "$unflatten=procEmi")]
+    pub e_processo: TipoProcessoEmissao,
+    #[serde(rename = "$unflatten=verProc")]
+    pub e_versao_processo: String,
+
+    #[serde(rename = "$unflatten=dhSaiEnt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(serialize_with = "serialize_horario_op")]
+    pub o_horario: Option<DateTime<Utc>>,
+    #[serde(rename = "$unflatten=tpNF")]
+    pub o_tipo: TipoOperacao,
+    #[serde(rename = "$unflatten=idDest")]
+    pub o_destino: DestinoOperacao,
+    #[serde(rename = "$unflatten=natOp")]
+    pub o_natureza: String,
+    #[serde(rename = "$unflatten=indFinal")]
+    pub o_consumidor: TipoConsumidor,
+    #[serde(rename = "$unflatten=indPres")]
+    pub o_presenca: TipoPresencaComprador,
+    #[serde(rename = "$unflatten=indIntermed")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub o_intermediador: Option<TipoIntermediador>,
+}
+
+fn serialize_horario<S>(date: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serializer.serialize_str(&date.to_rfc3339())
+}
+
+fn serialize_horario_op<S>(date: &Option<DateTime<Utc>>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serialize_horario(&date.unwrap(), serializer)
 }

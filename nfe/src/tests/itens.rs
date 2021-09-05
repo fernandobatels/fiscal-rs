@@ -380,3 +380,110 @@ fn impostos() -> Result<(), String> {
 
     Ok(())
 }
+
+#[test]
+fn produto_to_string() -> Result<(), Error> {
+    let mut xml_original = "<prod>
+        <cProd>11007</cProd>
+        <cEAN>SEM GTIN</cEAN>
+        <xProd>UM PRODUTO TESTE QUALQUER</xProd>
+        <NCM>64011000</NCM>
+        <uCom>UN</uCom>
+        <qCom>10</qCom>
+        <vUnCom>50</vUnCom>
+        <vProd>500</vProd>
+        <indTot>1</indTot>
+        <CEST>1234567</CEST>
+        <CFOP>6101</CFOP>
+        <cEANTrib>SEM GTIN</cEANTrib>
+        <uTrib>UN</uTrib>
+        <qTrib>10</qTrib>
+        <vUnTrib>50</vUnTrib>
+    </prod>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let produto = xml_original.parse::<Produto>()?;
+    let xml_novo = produto.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}
+
+#[test]
+fn imposto_to_string() -> Result<(), Error> {
+    let mut xml_original = "<imposto>
+            <vTotTrib>0</vTotTrib>
+            <ICMS>
+                <ICMSSN202>
+                    <orig>0</orig>
+                    <CSOSN>202</CSOSN>
+                    <modBCST>4</modBCST>
+                    <vBCST>0</vBCST>
+                    <pICMSST>0</pICMSST>
+                    <vICMSST>0</vICMSST>
+                </ICMSSN202>
+            </ICMS>
+            <PIS>
+                <PISOutr>
+                    <CST>49</CST>
+                    <vBC>0</vBC>
+                    <pPIS>0</pPIS>
+                </PISOutr>
+            </PIS>
+            <COFINS>
+                <COFINSOutr>
+                    <CST>49</CST>
+                    <vBC>0</vBC>
+                    <pCOFINS>0</pCOFINS>
+                </COFINSOutr>
+            </COFINS>
+        </imposto>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let imposto = xml_original.parse::<Imposto>()?;
+    let xml_novo = imposto.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}
+
+#[test]
+fn to_string() -> Result<(), Error> {
+    let mut xml_original = "
+        <det nItem=\"1\">
+            <prod>
+                <cProd>11007</cProd>
+                <cEAN>SEM GTIN</cEAN>
+                <xProd>UM PRODUTO TESTE QUALQUER</xProd>
+                <NCM>64011000</NCM>
+                <uCom>UN</uCom>
+                <qCom>10</qCom>
+                <vUnCom>50</vUnCom>
+                <vProd>500</vProd>
+                <indTot>1</indTot>
+                <CEST>1234567</CEST>
+                <CFOP>6101</CFOP>
+                <cEANTrib>SEM GTIN</cEANTrib>
+                <uTrib>UN</uTrib>
+                <qTrib>10</qTrib>
+                <vUnTrib>50</vUnTrib>
+            </prod>
+            <imposto>
+                <vTotTrib>0</vTotTrib>
+            </imposto>
+       </det>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+    xml_original = xml_original.replace("detnItem", "det nItem");
+
+    let item = xml_original.parse::<Item>()?;
+    let xml_novo = item.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}

@@ -22,7 +22,7 @@ fn from_instance() -> Result<(), String> {
     assert_eq!(4319901, emit.endereco.codigo_municipio);
     assert_eq!("SAPIRANGA", emit.endereco.nome_municipio);
     assert_eq!("RS", emit.endereco.sigla_uf);
-    assert_eq!(93800000, emit.endereco.cep);
+    assert_eq!("93800000", emit.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), emit.endereco.telefone);
 
     Ok(())
@@ -66,8 +66,41 @@ fn manual() -> Result<(), Error> {
     assert_eq!(4319901, emit.endereco.codigo_municipio);
     assert_eq!("SAPIRANGA", emit.endereco.nome_municipio);
     assert_eq!("RS", emit.endereco.sigla_uf);
-    assert_eq!(93800000, emit.endereco.cep);
+    assert_eq!("93800000", emit.endereco.cep);
     assert_eq!(Some("5190909090".to_string()), emit.endereco.telefone);
+
+    Ok(())
+}
+
+#[test]
+fn to_string() -> Result<(), Error> {
+    let mut xml_original = "
+        <emit>
+            <CNPJ>06929383000163</CNPJ>
+            <xNome>QUALQUER</xNome>
+            <IE>0018000762</IE>
+            <enderEmit>
+                <xLgr>Testes</xLgr>
+                <nro>1020</nro>
+                <xCpl>0</xCpl>
+                <xBairro>Centro</xBairro>
+                <cMun>4319901</cMun>
+                <xMun>SAPIRANGA</xMun>
+                <UF>RS</UF>
+                <CEP>93800000</CEP>
+                <cPais>1058</cPais>
+                <xPais>BRASIL</xPais>
+                <fone>5190909090</fone>
+            </enderEmit>
+        </emit>
+    "
+    .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let emitente = xml_original.parse::<Emitente>()?;
+    let xml_novo = emitente.to_string();
+
+    assert_eq!(xml_original, xml_novo);
 
     Ok(())
 }

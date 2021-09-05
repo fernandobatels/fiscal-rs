@@ -89,3 +89,31 @@ fn manual_produtos_com_pis_cofins() -> Result<(), Error> {
 
     Ok(())
 }
+
+#[test]
+fn to_string() -> Result<(), Error> {
+    let mut xml_original = "<total>
+            <ICMSTot>
+                <vBC>0</vBC>
+                <vICMS>0</vICMS>
+                <vProd>150</vProd>
+                <vFrete>0</vFrete>
+                <vSeg>0</vSeg>
+                <vDesc>0</vDesc>
+                <vOutro>10</vOutro>
+                <vPIS>0.89</vPIS>
+                <vCOFINS>4.09</vCOFINS>
+                <vNF>150</vNF>
+                <vTotTrib>35.75</vTotTrib>
+            </ICMSTot>
+        </total>"
+        .to_string();
+    xml_original.retain(|c| c != '\n' && c != ' ');
+
+    let totalizacao = xml_original.parse::<Totalizacao>()?;
+    let xml_novo = totalizacao.to_string();
+
+    assert_eq!(xml_original, xml_novo);
+
+    Ok(())
+}

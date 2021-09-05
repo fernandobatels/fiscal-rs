@@ -1,11 +1,11 @@
 //! Totalização dos produtos e serviços
 
 use super::Error;
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
 /// Totalização da nota fiscal
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Totalizacao {
     /// Base de cálculo do ICMS
     pub valor_base_calculo: f32,
@@ -35,7 +35,38 @@ impl FromStr for Totalizacao {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_xml_rs::from_str(s).map_err(|e| e.into())
+        quick_xml::de::from_str(s).map_err(|e| e.into())
+    }
+}
+
+impl ToString for Totalizacao {
+    fn to_string(&self) -> String {
+        quick_xml::se::to_string(self).expect("Falha ao serializar a totalização")
+    }
+}
+
+impl Serialize for Totalizacao {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let icms = IcmsTot {
+            valor_base_calculo: self.valor_base_calculo,
+            valor_icms: self.valor_icms,
+            valor_produtos: self.valor_produtos,
+            valor_frete: self.valor_frete,
+            valor_seguro: self.valor_seguro,
+            valor_desconto: self.valor_desconto,
+            valor_outros: self.valor_outros,
+            valor_pis: self.valor_pis,
+            valor_cofins: self.valor_cofins,
+            valor_total: self.valor_total,
+            valor_aproximado_tributos: self.valor_aproximado_tributos,
+        };
+
+        let total = TotalContainer { icms };
+
+        total.serialize(serializer)
     }
 }
 
@@ -44,39 +75,6 @@ impl<'de> Deserialize<'de> for Totalizacao {
     where
         D: Deserializer<'de>,
     {
-        #[derive(Deserialize)]
-        #[serde(rename = "total")]
-        struct TotalContainer {
-            #[serde(rename = "ICMSTot")]
-            icms: IcmsTot,
-        }
-
-        #[derive(Deserialize)]
-        struct IcmsTot {
-            #[serde(rename = "vBC")]
-            valor_base_calculo: f32,
-            #[serde(rename = "vICMS")]
-            valor_icms: f32,
-            #[serde(rename = "vProd")]
-            valor_produtos: f32,
-            #[serde(rename = "vFrete")]
-            valor_frete: f32,
-            #[serde(rename = "vSeg")]
-            valor_seguro: f32,
-            #[serde(rename = "vDesc")]
-            valor_desconto: f32,
-            #[serde(rename = "vOutro")]
-            valor_outros: f32,
-            #[serde(rename = "vPIS")]
-            valor_pis: f32,
-            #[serde(rename = "vCOFINS")]
-            valor_cofins: f32,
-            #[serde(rename = "vNF")]
-            valor_total: f32,
-            #[serde(rename = "vTotTrib")]
-            valor_aproximado_tributos: f32,
-        }
-
         let helper = TotalContainer::deserialize(deserializer)?;
         Ok(Totalizacao {
             valor_base_calculo: helper.icms.valor_base_calculo,
@@ -92,4 +90,37 @@ impl<'de> Deserialize<'de> for Totalizacao {
             valor_aproximado_tributos: helper.icms.valor_aproximado_tributos,
         })
     }
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename = "total")]
+struct TotalContainer {
+    #[serde(rename = "ICMSTot")]
+    icms: IcmsTot,
+}
+
+#[derive(Deserialize, Serialize)]
+struct IcmsTot {
+    #[serde(rename = "$unflatten=vBC")]
+    valor_base_calculo: f32,
+    #[serde(rename = "$unflatten=vICMS")]
+    valor_icms: f32,
+    #[serde(rename = "$unflatten=vProd")]
+    valor_produtos: f32,
+    #[serde(rename = "$unflatten=vFrete")]
+    valor_frete: f32,
+    #[serde(rename = "$unflatten=vSeg")]
+    valor_seguro: f32,
+    #[serde(rename = "$unflatten=vDesc")]
+    valor_desconto: f32,
+    #[serde(rename = "$unflatten=vOutro")]
+    valor_outros: f32,
+    #[serde(rename = "$unflatten=vPIS")]
+    valor_pis: f32,
+    #[serde(rename = "$unflatten=vCOFINS")]
+    valor_cofins: f32,
+    #[serde(rename = "$unflatten=vNF")]
+    valor_total: f32,
+    #[serde(rename = "$unflatten=vTotTrib")]
+    valor_aproximado_tributos: f32,
 }
