@@ -6,11 +6,6 @@
 
 Crate para manipulação da NF-e
 
-## Objetivos
-
-- [ ] Estruturação dos dados
-- [ ] Parse do XML
-
 ## Contribuição
 
 - Faltou algo? Abra uma issue!
